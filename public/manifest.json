@@ -1,0 +1,21 @@
+{
+  "name": "Protocolo Intestinal Vital 4F",
+  "short_name": "PIV 4F",
+  "description": "Protocolo completo para saúde intestinal em 21 dias",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2E7D32",
+  "icons": [
+    {
+      "src": "/pivlogo-solo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/pivlogo-solo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Glassmorphism para elementos con fondo difuminado */
+.glassmorphism {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Espaciado consistente para contenido principal */
+.container {
+  padding-bottom: 80px !important; /* Asegura espacio para la barra de navegación */
+}
+
+/* Botones y elementos de la UI */
+.btn-primary {
+  @apply bg-jade hover:bg-jade/90 text-white px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+}
+
+.glassmorphism-dark {
+  @apply backdrop-blur-md bg-black/20 border border-white/10 shadow-xl;
+}
+
+.btn-secondary {
+  @apply bg-mint text-jade px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+}
+
+.btn-premium {
+  @apply bg-gradient-to-r from-gold to-yellow-400 text-jade px-6 py-3 rounded-lg font-semibold hover:from-yellow-400 hover:to-gold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+}
+
+.card {
+  @apply glassmorphism rounded-2xl p-6 hover:shadow-2xl transition-shadow duration-300;
+}
+
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-essencial {
+  @apply bg-mint/20 text-jade border border-mint/30;
+}
+
+.badge-completo {
+  @apply bg-coral/20 text-coral border border-coral/30;
+}
+
+.badge-premium {
+  @apply bg-gradient-to-r from-gold/20 to-yellow-400/20 text-yellow-700 border border-gold/30;
+}
+
+.locked-content {
+  @apply relative overflow-hidden;
+}
+
+.locked-content::after {
+  @apply content-[''] absolute inset-0 backdrop-blur-sm bg-white/50 pointer-events-none;
+}
+
+/* Animações suaves */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes bounce-gentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 3s ease-in-out infinite;
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2s ease-in-out infinite;
+}
+
+/* Scrollbar customizada */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-mint rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-jade;
+}
