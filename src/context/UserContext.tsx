@@ -6,6 +6,8 @@ interface UserContextType {
   updateUserPlan: (plan: 'essencial' | 'completo' | 'premium') => void;
   updateVipSubscription: (isSubscribed: boolean) => void;
   incrementDay: () => void;
+  darkMode?: boolean;
+  toggleDarkMode?: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -23,6 +25,7 @@ interface UserProviderProps {
 }
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
+  const [darkMode, setDarkMode] = useState<boolean>(false);
   const [user, setUser] = useState<User>({
     name: 'Maria Silva',
     plan: 'essencial',
@@ -77,12 +80,18 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }));
   };
 
+  const toggleDarkMode = () => {
+    setDarkMode(prev => !prev);
+  };
+
   return (
     <UserContext.Provider value={{ 
       user, 
       updateUserPlan, 
       updateVipSubscription, 
-      incrementDay
+      incrementDay,
+      darkMode,
+      toggleDarkMode
     }}>
       {children}
     </UserContext.Provider>

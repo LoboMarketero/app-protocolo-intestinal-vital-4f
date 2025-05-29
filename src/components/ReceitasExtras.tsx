@@ -226,12 +226,6 @@ const ReceitasExtras: React.FC<ReceitasExtrasProps> = ({ onBack }) => {
     }
   ];
 
-  // Filtrar recetas según la categoría seleccionada
-  const filterRecipes = (recipes: any[]) => {
-    if (filterCategory === 'todos') return recipes;
-    return recipes.filter(recipe => recipe.category === filterCategory);
-  };
-
   return (
     <div className="container mx-auto px-4 py-8 pb-24">
       {/* Header */}

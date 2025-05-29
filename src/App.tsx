@@ -124,7 +124,7 @@ function App() {
         <SideMenu 
           isOpen={sideMenuOpen} 
           onClose={() => setSideMenuOpen(false)}
-          onNavigate={setCurrentPage}
+          onNavigate={(page: string) => setCurrentPage(page as Page)}
         />
         <PWAInstall />
       </div>
