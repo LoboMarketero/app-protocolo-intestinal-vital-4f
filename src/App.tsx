@@ -70,7 +70,7 @@ function App() {
       case 'materials':
       case 'progress':
         return (
-          <div className="container mx-auto px-4 py-8">
+          <div className="container mx-auto px-4 py-8 pb-24">
             <div className="card">
               <h2 className="text-2xl font-bold text-jade mb-4">Em Desenvolvimento</h2>
               <p className="text-gray-600 mb-4">Esta seção está sendo preparada com muito carinho para você!</p>
@@ -83,7 +83,7 @@ function App() {
       
       case 'community':
         return (
-          <div className="container mx-auto px-4 py-8">
+          <div className="container mx-auto px-4 py-8 pb-24">
             <div className="card locked-content">
               <h2 className="text-2xl font-bold text-jade mb-4">Comunidade VIP 🔒</h2>
               <p className="text-gray-600 mb-4">Acesso exclusivo para assinantes VIP</p>
@@ -104,7 +104,7 @@ function App() {
 
   return (
     <UserProvider>
-      <div className="min-h-screen bg-gradient-to-br from-mint/10 via-white to-jade/10">
+      <div className="min-h-screen bg-gradient-to-br from-mint/10 via-white to-jade/10 pb-24">
         {renderPage()}
         <Navigation 
           currentPage={currentPage} 

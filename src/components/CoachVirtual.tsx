@@ -20,7 +20,7 @@ const CoachVirtual: React.FC<CoachVirtualProps> = ({ onBack }) => {
   // Verificar permissão
   if (!user.permissions.virtualCoach) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 pb-24">
         <div className="card">
           <h2 className="text-2xl font-bold text-jade mb-4">Acesso Restrito</h2>
           <p className="text-gray-600 mb-4">
