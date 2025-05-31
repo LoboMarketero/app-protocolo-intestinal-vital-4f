@@ -8,8 +8,10 @@ import {
   BrainCircuit, 
   BarChart, 
   Users,
-  ChevronRight
+  ChevronRight,
+  DownloadCloud // For consistency, though DownloadButton imports it
 } from 'lucide-react';
+import AppDownloadButton from './AppDownloadButton'; // Changed to import AppDownloadButton
 
 interface SideMenuProps {
   isOpen: boolean;
@@ -18,8 +20,16 @@ interface SideMenuProps {
 }
 
 const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
-  const { user } = useUser();
+  const { authUser, userProfile, permissions } = useUser(); // Updated destructuring
   
+  // AppContent should ensure authUser, userProfile and therefore permissions are non-null when SideMenu is rendered.
+  // Adding a guard for permissions for safety, though ideally AppContent ensures this.
+  if (!permissions) {
+    // This case should ideally not be reached if AppContent's logic is correct.
+    // Return null or a loading indicator if permissions might not be ready.
+    return null; 
+  }
+
   const handleNavigate = (page: string) => {
     onNavigate(page);
     onClose();
@@ -59,7 +69,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
             
             <div className="space-y-1 mb-6">
               {/* Guia de Manutenção (Plano Completo ou Premium) */}
-              {user.permissions.maintenanceGuide && (
+              {permissions.canAccessMaintenanceGuide && (
                 <button 
                   onClick={() => handleNavigate('guiaManutencao')}
                   className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
@@ -73,7 +83,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
               )}
               
               {/* Receitas Extras (Plano Completo ou Premium) */}
-              {user.permissions.extraRecipes && (
+              {permissions.canAccessExtraRecipes && (
                 <button 
                   onClick={() => handleNavigate('receitasExtras')}
                   className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
@@ -87,7 +97,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
               )}
               
               {/* Protocolo Turbo (Plano Premium) */}
-              {user.permissions.turboProtocol && (
+              {permissions.canAccessTurboProtocol && (
                 <button 
                   onClick={() => handleNavigate('protocoloTurbo')}
                   className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
@@ -101,7 +111,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
               )}
               
               {/* Coach Virtual (Plano Premium) */}
-              {user.permissions.virtualCoach && (
+              {permissions.canAccessAICoach && ( // Corrected to canAccessAICoach
                 <button 
                   onClick={() => handleNavigate('coachVirtual')}
                   className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
@@ -114,8 +124,8 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
                 </button>
               )}
               
-              {/* Analytics Premium (Plano Premium) */}
-              {user.permissions.premiumAnalytics && (
+              {/* Analytics Premium (Plano Premium) - This permission is not in UserPermissions type */}
+              {/* {permissions.premiumAnalytics && (
                 <button 
                   onClick={() => handleNavigate('analyticsPremium')}
                   className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
@@ -126,10 +136,10 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
                   </div>
                   <ChevronRight className="w-4 h-4 text-gray-400" />
                 </button>
-              )}
+              )} */}
               
               {/* Comunidade VIP (Assinatura mensal) */}
-              {user.permissions.vipCommunity && (
+              {permissions.canAccessVIPCommunity && (
                 <button 
                   onClick={() => handleNavigate('community')}
                   className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
@@ -141,13 +151,20 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
                   <ChevronRight className="w-4 h-4 text-gray-400" />
                 </button>
               )}
+              
+              {/* FAQ (Free resource) - REMOVED as per user request */}
             </div>
             
+            {/* Adding Download App button here */}
+            <div className="my-4 py-2 border-t border-b border-gray-200">
+              <AppDownloadButton />
+            </div>
+
             <h3 className="text-sm font-bold text-gray-500 mb-2">RECURSOS PREMIUM</h3>
             
             <div className="space-y-1">
               {/* Guia de Manutenção (Bloqueado) */}
-              {!user.permissions.maintenanceGuide && (
+              {!permissions.canAccessMaintenanceGuide && (
                 <button 
                   onClick={() => handleNavigate('upgrade')}
                   className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
@@ -164,7 +181,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
               )}
               
               {/* Receitas Extras (Bloqueado) */}
-              {!user.permissions.extraRecipes && (
+              {!permissions.canAccessExtraRecipes && (
                 <button 
                   onClick={() => handleNavigate('upgrade')}
                   className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
@@ -181,7 +198,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
               )}
               
               {/* Protocolo Turbo (Bloqueado) */}
-              {!user.permissions.turboProtocol && (
+              {!permissions.canAccessTurboProtocol && (
                 <button 
                   onClick={() => handleNavigate('upgrade')}
                   className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
@@ -198,7 +215,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
               )}
               
               {/* Coach Virtual (Bloqueado) */}
-              {!user.permissions.virtualCoach && (
+              {!permissions.canAccessAICoach && ( // Corrected to canAccessAICoach
                 <button 
                   onClick={() => handleNavigate('upgrade')}
                   className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
@@ -214,8 +231,8 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
                 </button>
               )}
               
-              {/* Analytics Premium (Bloqueado) */}
-              {!user.permissions.premiumAnalytics && (
+              {/* Analytics Premium (Bloqueado) - This permission is not in UserPermissions type */}
+              {/* {!permissions.premiumAnalytics && (
                 <button 
                   onClick={() => handleNavigate('upgrade')}
                   className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
@@ -229,10 +246,10 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
                   </div>
                   <span className="text-xs font-medium text-coral">Desbloquear</span>
                 </button>
-              )}
+              )} */}
               
               {/* Comunidade VIP (Bloqueado) */}
-              {!user.permissions.vipCommunity && (
+              {!permissions.canAccessVIPCommunity && (
                 <button 
                   onClick={() => handleNavigate('upgrade')}
                   className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"

@@ -18,10 +18,6 @@
   @apply bg-jade hover:bg-jade/90 text-white px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
 }
 
-.glassmorphism-dark {
-  @apply backdrop-blur-md bg-black/20 border border-white/10 shadow-xl;
-}
-
 .btn-secondary {
   @apply bg-mint text-jade px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
 }
@@ -31,7 +27,8 @@
 }
 
 .card {
-  @apply glassmorphism rounded-2xl p-6 hover:shadow-2xl transition-shadow duration-300;
+  /* Added bg-white/70 for better visibility and a subtle border */
+  @apply bg-white/70 border border-white/20 glassmorphism rounded-2xl p-6 hover:shadow-2xl transition-shadow duration-300;
 }
 
 .badge {
@@ -118,4 +115,46 @@
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-jade;
+}
+
+/* Sistema de Cores & Contraste */
+:root {
+  --primary-green: #2E7D32;
+  --secondary-mint: #81C784;
+  --accent-coral: #FF8A65;
+  --background-light: #FAFAFA;
+  --card-background: #FFFFFF;
+  --section-border: #E0E0E0;
+  --text-primary: #1A1A1A;
+  --text-secondary: #555555;
+}
+
+/* Seções com melhor contraste */
+.section {
+  background: var(--card-background);
+  border: 1px solid var(--section-border);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 16px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Cards Premium com visual distinto */
+.premium-card {
+  position: relative;
+  border: 2px dashed var(--accent-coral);
+  background: linear-gradient(135deg, #FFF8F6, #FFFFFF);
+  opacity: 0.9;
+}
+
+.premium-card::before {
+  content: "🔒";
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--accent-coral);
+  color: white;
+  padding: 6px;
+  border-radius: 50%;
+  font-size: 16px;
 }

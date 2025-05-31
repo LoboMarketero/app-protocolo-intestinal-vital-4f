@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { UserProvider } from './context/UserContext';
+import { UserProvider, useUser } from './context/UserContext';
+import { LoginPage } from './components/LoginPage'; // Added LoginPage import
 import Dashboard from './components/Dashboard';
 import Navigation from './components/Navigation';
 import DailyProtocol from './components/DailyProtocol';
@@ -12,6 +13,10 @@ import CoachVirtual from './components/CoachVirtual';
 import AnalyticsPremium from './components/AnalyticsPremium';
 import PWAInstall from './components/PWAInstall';
 import SideMenu from './components/SideMenu';
+import BasicTracker from './components/BasicTracker';
+import AdvancedTracker from './components/AdvancedTracker';
+import MateriaisApoio from './components/MateriaisApoio';
+import FAQIntegrado from './components/FAQIntegrado';
 
 type Page = 
   | 'dashboard' 
@@ -25,13 +30,40 @@ type Page =
   | 'receitasExtras'
   | 'protocoloTurbo'
   | 'coachVirtual'
-  | 'analyticsPremium';
+  | 'analyticsPremium'
+  | 'faq';
 
-function App() {
+function AppContent() {
+  const { authUser, userProfile, loading } = useUser(); // Changed to authUser, userProfile
+
+  // Hooks must be called at the top level, before conditional returns.
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<string>('');
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-jade-50 flex items-center justify-center">
+        <div className="text-jade-600">Carregando...</div>
+      </div>
+    );
+  }
+
+  if (!authUser) { // Changed to !authUser
+    return <LoginPage />;
+  }
+  
+  // When authUser exists, userProfile might still be loading.
+  // Components below need to handle userProfile potentially being null.
+  // Or add another loading state / guard for userProfile.
+  // For now, let's assume components will use optional chaining or check userProfile.
+
+  // Existing AppContent logic that depends on user being non-null
+  // const [currentPage, setCurrentPage] = useState<Page>('dashboard'); // Moved up
+  // const [showPremiumModal, setShowPremiumModal] = useState(false); // Moved up
+  // const [selectedFeature, setSelectedFeature] = useState<string>(''); // Moved up
+  // const [sideMenuOpen, setSideMenuOpen] = useState(false); // Moved up
 
   const handlePremiumFeature = (featureId: string) => {
     setSelectedFeature(featureId);
@@ -67,8 +99,6 @@ function App() {
       
       
       case 'videos':
-      case 'materials':
-      case 'progress':
         return (
           <div className="container mx-auto px-4 py-8 pb-24">
             <div className="card">
@@ -78,6 +108,22 @@ function App() {
                 Você receberá uma notificação por e-mail e WhatsApp assim que esta funcionalidade estiver disponível.
               </p>
             </div>
+          </div>
+        );
+      
+      case 'materials':
+        if (!userProfile) return <div className="p-4">Carregando dados do perfil...</div>; // Guard for userProfile
+        return <MateriaisApoio onBack={() => setCurrentPage('dashboard')} />;
+      
+      case 'progress':
+        if (!userProfile) return <div className="p-4">Carregando dados do perfil...</div>; // Guard for userProfile
+        return (
+          <div className="container mx-auto px-4 py-8 pb-24">
+            {userProfile.plan === 'essencial' ? (
+              <BasicTracker onNavigateToUpgrade={() => setCurrentPage('upgrade')} /> 
+            ) : (
+              <AdvancedTracker onNavigateToUpgrade={() => setCurrentPage('upgrade')} /> 
+            )}
           </div>
         );
       
@@ -97,37 +143,46 @@ function App() {
           </div>
         );
       
+      case 'faq':
+        return <FAQIntegrado onBack={() => setCurrentPage('dashboard')} />;
+
       default:
         return <Dashboard onPremiumFeature={handlePremiumFeature} onNavigate={setCurrentPage} />;
     }
   };
 
   return (
+    <div className="min-h-screen bg-gradient-to-br from-mint/10 via-white to-jade/10 pb-24">
+      {renderPage()}
+      <Navigation 
+        currentPage={currentPage} 
+        onNavigate={setCurrentPage} 
+        onOpenMenu={() => setSideMenuOpen(true)}
+      />
+      {showPremiumModal && (
+        <PremiumModal 
+          featureId={selectedFeature}
+          onClose={() => setShowPremiumModal(false)}
+          onUpgrade={() => {
+            setShowPremiumModal(false);
+            setCurrentPage('upgrade');
+          }}
+        />
+      )}
+      <SideMenu 
+        isOpen={sideMenuOpen} 
+        onClose={() => setSideMenuOpen(false)}
+        onNavigate={(page: string) => setCurrentPage(page as Page)}
+      />
+      <PWAInstall />
+    </div>
+  );
+}
+
+function App() {
+  return (
     <UserProvider>
-      <div className="min-h-screen bg-gradient-to-br from-mint/10 via-white to-jade/10 pb-24">
-        {renderPage()}
-        <Navigation 
-          currentPage={currentPage} 
-          onNavigate={setCurrentPage} 
-          onOpenMenu={() => setSideMenuOpen(true)}
-        />
-        {showPremiumModal && (
-          <PremiumModal 
-            featureId={selectedFeature}
-            onClose={() => setShowPremiumModal(false)}
-            onUpgrade={() => {
-              setShowPremiumModal(false);
-              setCurrentPage('upgrade');
-            }}
-          />
-        )}
-        <SideMenu 
-          isOpen={sideMenuOpen} 
-          onClose={() => setSideMenuOpen(false)}
-          onNavigate={(page: string) => setCurrentPage(page as Page)}
-        />
-        <PWAInstall />
-      </div>
+      <AppContent />
     </UserProvider>
   );
 }

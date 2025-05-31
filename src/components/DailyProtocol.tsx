@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // Added useEffect
 import { useUser } from '../context/UserContext';
+import { supabase } from '../lib/supabase'; // Added supabase import
 import { protocolData } from '../data/protocol';
 import { ArrowLeft, Droplet, Coffee, Moon, CheckCircle2, Clock } from 'lucide-react';
 
@@ -7,39 +8,148 @@ interface DailyProtocolProps {
   onBack: () => void;
 }
 
-const DailyProtocol: React.FC<DailyProtocolProps> = ({ onBack }) => {
-  const { user, incrementDay } = useUser();
-  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
-  const todayProtocol = protocolData.find(p => p.day === user.currentDay);
+// Add these functions to save/load progress
+const loadDailyProgress = async (userId: string, day: number) => {
+  console.log(`[DailyProtocol] loadDailyProgress called for userId: ${userId}, day: ${day}`);
+  const { data, error } = await supabase
+    .from('daily_progress')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('day', day)
+    .single();
 
-  if (!todayProtocol) {
+  if (error && error.code !== 'PGRST116') { // PGRST116: "Searched item was not found"
+    console.error('[DailyProtocol] loadDailyProgress - Error loading progress:', error);
+    return null;
+  }
+  if (error && error.code === 'PGRST116') {
+    console.log(`[DailyProtocol] loadDailyProgress - No progress record found for userId: ${userId}, day: ${day}. This is normal if no tasks completed yet.`);
+    return null;
+  }
+  console.log(`[DailyProtocol] loadDailyProgress - Successfully fetched progress for userId: ${userId}, day: ${day}, data:`, JSON.stringify(data));
+  return data;
+}
+
+const saveDailyProgress = async (userId: string, day: number, progress: any) => {
+  console.log('[DailyProtocol] saveDailyProgress - Attempting to save progress:', { userId, day, progress });
+  const upsertData = {
+    user_id: userId,
+    day,
+    morning_completed: progress.morning,
+    afternoon_completed: progress.afternoon,
+    evening_completed: progress.evening, // Maps to 'night' in UI state
+    completed_at: (progress.morning && progress.afternoon && progress.evening) ? new Date().toISOString() : null
+  };
+
+  const { data, error } = await supabase
+    .from('daily_progress')
+    .upsert(upsertData, {
+      onConflict: 'user_id,day' // Specify the constraint to use for conflict resolution
+    })
+    .select(); // Return the upserted row(s)
+
+  console.log('[DailyProtocol] saveDailyProgress - upsert result data (should be array of upserted rows):', JSON.stringify(data));
+  if (error) {
+    console.error('[DailyProtocol] saveDailyProgress - upsert error:', error);
+    throw error;
+  }
+  return data; 
+}
+
+const DailyProtocol: React.FC<DailyProtocolProps> = ({ onBack }) => {
+  const { authUser, userProfile, advanceDay } = useUser(); 
+  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
+  
+  if (!authUser || !userProfile) {
+    return <div className="p-4 text-center">Carregando dados do usuário ou perfil...</div>;
+  }
+  // Now authUser and userProfile are guaranteed non-null.
+
+  const currentDay = userProfile.current_day;
+  const todayProtocol = protocolData.find(p => p.day === currentDay);
+
+  useEffect(() => {
+    console.log('[DailyProtocol] useEffect triggered. AuthUser ID:', authUser.id, 'currentDay:', currentDay, 'todayProtocol exists:', !!todayProtocol);
+    // userProfile is already confirmed non-null if we reach here due to the guard above.
+    // authUser.id is also confirmed.
+    if (todayProtocol) { // Only need to check todayProtocol as authUser and userProfile are guarded
+      const performLoadProgress = async () => {
+        console.log('[DailyProtocol] useEffect - Condition met, calling loadDailyProgress.');
+        const progressData = await loadDailyProgress(authUser.id, currentDay);
+        console.log('[DailyProtocol] useEffect - loadDailyProgress returned:', JSON.stringify(progressData));
+        if (progressData) {
+          const steps = [];
+          if (progressData.morning_completed) steps.push('morning');
+          if (progressData.afternoon_completed) steps.push('afternoon');
+          if (progressData.evening_completed) steps.push('night'); // Map evening_completed to 'night'
+          console.log('[DailyProtocol] useEffect - Setting completedSteps from DB data:', steps);
+          setCompletedSteps(steps);
+        } else {
+          console.log('[DailyProtocol] useEffect - No progressData from DB, setting completedSteps to empty array.');
+          setCompletedSteps([]); 
+        }
+      };
+      performLoadProgress();
+    } else {
+      console.log('[DailyProtocol] useEffect - Condition NOT met for loading progress.');
+    }
+  }, [authUser, userProfile, currentDay]); // Corrected dependency array
+
+  // The guards for !authUser, !userProfile, and !todayProtocol are now at the top or implicit.
+  // if (!authUser || !userProfile) handled by early return.
+  // if (!todayProtocol) also needs to be handled if currentDay could be invalid.
+  // For now, assuming currentDay from userProfile will always find a todayProtocol or component handles it.
+  // The existing !todayProtocol guard is fine.
+
+  if (!todayProtocol) { // This guard is still useful if current_day from DB is out of protocolData range
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="card">
-          <p className="text-gray-600">Protocolo não encontrado para o dia {user.currentDay}</p>
+          <p className="text-gray-600">Protocolo não encontrado para o dia {currentDay}</p>
         </div>
       </div>
     );
   }
 
-  const handleStepComplete = (stepId: string) => {
+  const handleStepComplete = async (stepId: string) => {
+    let newCompletedSteps;
     if (!completedSteps.includes(stepId)) {
-      setCompletedSteps([...completedSteps, stepId]);
+      newCompletedSteps = [...completedSteps, stepId];
     } else {
-      setCompletedSteps(completedSteps.filter(id => id !== stepId));
+      newCompletedSteps = completedSteps.filter(id => id !== stepId);
+    }
+    setCompletedSteps(newCompletedSteps);
+
+    // authUser and userProfile are guaranteed non-null here by the top guard
+    const progressToSave = {
+      morning: newCompletedSteps.includes('morning'),
+      afternoon: newCompletedSteps.includes('afternoon'),
+      evening: newCompletedSteps.includes('night'),
+    };
+    try {
+      console.log('[DailyProtocol] handleStepComplete - calling saveDailyProgress with:', { userId: authUser.id, currentDay, progressToSave });
+      const savedData = await saveDailyProgress(authUser.id, currentDay, progressToSave);
+      console.log('[DailyProtocol] handleStepComplete - progress saved successfully:', savedData);
+    } catch (error) {
+      console.error('[DailyProtocol] handleStepComplete - error saving progress:', error);
     }
   };
 
   const allStepsCompleted = completedSteps.length === 3;
 
-  const handleCompleteDay = () => {
-    if (allStepsCompleted && user.currentDay < 21) {
-      incrementDay();
-      setCompletedSteps([]);
+  const handleCompleteDay = async () => {
+    // userProfile is guaranteed non-null here due to the guard at the component's top.
+    // currentDay is derived from userProfile.current_day.
+    if (allStepsCompleted && typeof currentDay === 'number' && currentDay < 21) {
+      await advanceDay();
+      // Optionally reset local steps for immediate UI feedback, though useEffect will handle it upon context update.
+      // setCompletedSteps([]); 
+      // The useEffect listening to currentDay (from the updated userProfile in context)
+      // will fetch the new day's progress, effectively resetting/updating the UI.
     }
   };
 
-  const StepCard = ({ 
+  const StepCard = ({
     stepId, 
     icon, 
     iconBg, 
@@ -91,7 +201,7 @@ const DailyProtocol: React.FC<DailyProtocolProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 pb-24">
+    <div className="container mx-auto px-4 py-8 pb-36"> {/* Increased bottom padding */}
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <button 
@@ -101,7 +211,7 @@ const DailyProtocol: React.FC<DailyProtocolProps> = ({ onBack }) => {
           <ArrowLeft className="w-5 h-5" />
           Voltar
         </button>
-        <span className="badge badge-essencial">Dia {user.currentDay}/21</span>
+        <span className="badge badge-essencial">Dia {currentDay}/21</span>
       </div>
 
       {/* Phase Info */}
@@ -163,20 +273,20 @@ const DailyProtocol: React.FC<DailyProtocolProps> = ({ onBack }) => {
       </div>
 
       {/* Complete Day Button */}
-      {allStepsCompleted && user.currentDay < 21 && (
-        <div className="fixed bottom-20 left-4 right-4 z-40">
+      {allStepsCompleted && currentDay < 21 && (
+        <div className="fixed bottom-24 left-4 right-4 z-40"> {/* Increased bottom offset */}
           <button
             onClick={handleCompleteDay}
             className="btn-primary w-full flex items-center justify-center gap-2"
           >
             <Clock className="w-5 h-5" />
-            Concluir Dia {user.currentDay} e Avançar
+            Concluir Dia {currentDay} e Avançar
           </button>
         </div>
       )}
 
       {/* Completion Message */}
-      {user.currentDay === 21 && allStepsCompleted && (
+      {currentDay === 21 && allStepsCompleted && (
         <div className="card bg-gradient-to-r from-gold/20 to-yellow-400/20 border-gold/30">
           <h3 className="text-xl font-bold text-jade mb-2">
             🎉 Parabéns! Você completou o protocolo!

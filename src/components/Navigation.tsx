@@ -15,11 +15,14 @@ interface NavigationProps {
 }
 
 const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate, onOpenMenu }) => {
-  const { user } = useUser();
+  const { userProfile } = useUser(); // Changed to userProfile
   
   // Badge para mostrar o plano do usuário
   const PlanBadge = () => {
-    switch(user.plan) {
+    if (!userProfile || !userProfile.plan) { // Guard against null userProfile or plan
+      return null; // Or a placeholder/loading indicator
+    }
+    switch(userProfile.plan) { // Use userProfile.plan
       case 'essencial':
         return <span className="bg-jade/10 text-jade text-[10px] px-1 py-0.5 rounded font-bold">ESSENCIAL</span>;
       case 'completo':
@@ -31,7 +34,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate, onOpen
     }
   };
   
-  // Simplificamos la navegación a solo 4 elementos principales + menú
+  // Simplificamos a navegação para apenas 4 elementos principais + menu
   const navItems = [
     { id: 'dashboard', label: 'Início', icon: Home },
     { id: 'protocol', label: 'Protocolo', icon: Calendar },
@@ -41,14 +44,8 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate, onOpen
   
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white glassmorphism border-t border-gray-200 px-2 py-2 z-40">
-      <div className="flex items-center justify-between px-3 pb-1">
+      <div className="flex items-center justify-center px-3 pb-1">
         <PlanBadge />
-        <button 
-          onClick={() => onNavigate('upgrade')}
-          className="text-xs text-jade font-medium hover:text-jade/80"
-        >
-          Fazer Upgrade
-        </button>
       </div>
       
       <div className="flex justify-between items-center max-w-lg mx-auto">
@@ -76,7 +73,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate, onOpen
           );
         })}
         
-        {/* Botón del menú lateral */}
+        {/* Botão do menu lateral */}
         <button
           onClick={onOpenMenu}
           className="flex flex-col items-center justify-center p-2 rounded-lg transition-all text-gray-600 hover:text-jade"

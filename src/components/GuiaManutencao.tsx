@@ -1,30 +1,23 @@
 import React from 'react';
 import { useUser } from '../context/UserContext';
 import { ArrowLeft, BookOpen, Calendar, List, AlertCircle } from 'lucide-react';
+import LockedPreview from './LockedPreview'; // Import LockedPreview
 
 interface GuiaManutencaoProps {
   onBack: () => void;
 }
 
 const GuiaManutencao: React.FC<GuiaManutencaoProps> = ({ onBack }) => {
-  const { user } = useUser();
+  const { permissions } = useUser(); // Correctly destructure permissions
 
   // Verificar permissão
-  if (!user.permissions.maintenanceGuide) {
+  if (!permissions.canAccessMaintenanceGuide) { // Correct permission check
     return (
       <div className="container mx-auto px-4 py-8 pb-24">
-        <div className="card">
-          <h2 className="text-2xl font-bold text-jade mb-4">Acesso Restrito</h2>
-          <p className="text-gray-600 mb-4">
-            Você precisa do plano Completo ou Premium para acessar o Guia de Manutenção.
-          </p>
-          <button 
-            onClick={onBack}
-            className="btn-primary"
-          >
-            Voltar
-          </button>
-        </div>
+        <LockedPreview 
+          componentName="GUIA MANUTENÇÃO" 
+          onUpgradeClick={onBack} // Pass onBack to onUpgradeClick
+        />
       </div>
     );
   }

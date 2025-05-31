@@ -26,6 +26,14 @@ export const premiumFeatures: PremiumFeature[] = [
     icon: 'Rocket'
   },
   {
+    id: 'ai-coach',
+    title: 'COACH VIRTUAL IA',
+    description: 'Análises e recomendações personalizadas',
+    price: 'Incluído no Plano Premium',
+    planRequired: 'premium',
+    icon: 'BrainCircuit'
+  },
+  {
     id: 'vip-community',
     title: 'COMUNIDADE VIP',
     description: 'Suporte Dra. Mariana',

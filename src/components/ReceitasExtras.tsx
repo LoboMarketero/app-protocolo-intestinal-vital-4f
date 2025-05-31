@@ -1,32 +1,25 @@
 import React, { useState } from 'react';
 import { useUser } from '../context/UserContext';
 import { ArrowLeft, Utensils, Coffee, Droplet, Apple } from 'lucide-react';
+import LockedPreview from './LockedPreview'; // Import LockedPreview
 
 interface ReceitasExtrasProps {
   onBack: () => void;
 }
 
 const ReceitasExtras: React.FC<ReceitasExtrasProps> = ({ onBack }) => {
-  const { user } = useUser();
+  const { permissions } = useUser(); // Correctly destructure permissions
   const [filterCategory, setFilterCategory] = useState('todos');
   const [showAllRecipes, setShowAllRecipes] = useState(false);
 
   // Verificar permissão
-  if (!user.permissions.extraRecipes) {
+  if (!permissions.canAccessExtraRecipes) { // Correct permission check
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="card">
-          <h2 className="text-2xl font-bold text-jade mb-4">Acesso Restrito</h2>
-          <p className="text-gray-600 mb-4">
-            Você precisa do plano Completo ou Premium para acessar as Receitas Extras.
-          </p>
-          <button 
-            onClick={onBack}
-            className="btn-primary"
-          >
-            Voltar
-          </button>
-        </div>
+      <div className="container mx-auto px-4 py-8 pb-24"> {/* Added pb-24 for consistency */}
+        <LockedPreview 
+          componentName="25 RECEITAS EXTRAS" 
+          onUpgradeClick={onBack} // Pass onBack to onUpgradeClick
+        />
       </div>
     );
   }
@@ -244,7 +237,7 @@ const ReceitasExtras: React.FC<ReceitasExtrasProps> = ({ onBack }) => {
       <div className="card mb-6 bg-gradient-to-r from-jade/10 to-mint/10">
           <h2 className="text-2xl font-bold text-jade mb-2 flex items-center gap-2">
           <Utensils className="w-6 h-6" />
-          15 Receitas Extras
+          25 Receitas Extras
         </h2>
         <p className="text-gray-700">
           Acelere seus resultados com essas receitas exclusivas potencializadas.
@@ -412,7 +405,7 @@ const ReceitasExtras: React.FC<ReceitasExtrasProps> = ({ onBack }) => {
             {showAllRecipes ? 'Mostrar menos' : 'Ver todas receitas'}
           </button>
           <p className="text-gray-500 text-sm mt-2">
-            Mostrando {showAllRecipes ? '15' : '5'} de 15 receitas
+            Mostrando {showAllRecipes ? 5 + additionalRecipes.length : '5'} de {5 + additionalRecipes.length} receitas
           </p>
         </div>
       </div>

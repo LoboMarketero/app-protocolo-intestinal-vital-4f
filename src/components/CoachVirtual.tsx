@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useUser } from '../context/UserContext';
-import { ArrowLeft, BrainCircuit, MessageSquare, BarChart3, Sparkles, Clipboard, Send, User } from 'lucide-react';
+import { ArrowLeft, BrainCircuit, MessageSquare, BarChart3, Sparkles, Clipboard, Send, User, Droplet } from 'lucide-react'; // Added Droplet for consistency with one of the InsightCards
+import LockedPreview from './LockedPreview'; // Import LockedPreview
 
 interface CoachVirtualProps {
   onBack: () => void;
 }
 
 const CoachVirtual: React.FC<CoachVirtualProps> = ({ onBack }) => {
-  const { user } = useUser();
+  const { permissions } = useUser(); // Correctly destructure permissions
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState<{text: string, isUser: boolean, time: string}[]>([
     {
@@ -18,21 +19,13 @@ const CoachVirtual: React.FC<CoachVirtualProps> = ({ onBack }) => {
   ]);
 
   // Verificar permissão
-  if (!user.permissions.virtualCoach) {
+  if (!permissions.canAccessAICoach) { // Correct permission check
     return (
       <div className="container mx-auto px-4 py-8 pb-24">
-        <div className="card">
-          <h2 className="text-2xl font-bold text-jade mb-4">Acesso Restrito</h2>
-          <p className="text-gray-600 mb-4">
-            Você precisa do plano Premium para acessar o Coach Virtual.
-          </p>
-          <button 
-            onClick={onBack}
-            className="btn-primary"
-          >
-            Voltar
-          </button>
-        </div>
+        <LockedPreview 
+          componentName="COACH VIRTUAL IA" 
+          onUpgradeClick={onBack} // Pass onBack to onUpgradeClick, parent handles navigation
+        />
       </div>
     );
   }
@@ -174,7 +167,7 @@ const CoachVirtual: React.FC<CoachVirtualProps> = ({ onBack }) => {
           value="Fase 1"
           description="Progredindo conforme o esperado"
           trend="neutral"
-          icon={<ActivityIcon className="w-5 h-5 text-jade" />}
+          icon={<ActivityIcon className="w-5 h-5 text-jade" />} // Assuming ActivityIcon is defined or imported elsewhere, or replace if not
         />
       </div>
 
@@ -301,22 +294,7 @@ const ActivityIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// Componente para ícone de gota d'água
-const Droplet = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
-  </svg>
-);
+// Removed local Droplet component to resolve conflict with lucide-react import.
+// The Droplet icon used in InsightCard is from lucide-react.
 
 export default CoachVirtual;

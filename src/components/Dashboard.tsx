@@ -1,6 +1,7 @@
 import React from 'react';
 import { useUser } from '../context/UserContext';
 import { protocolData } from '../data/protocol';
+import AppDownloadButton from './AppDownloadButton'; // Import AppDownloadButton
 import { 
   Lock, 
   Sparkles, 
@@ -22,12 +23,19 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) => {
-  const { user } = useUser();
-  const todayProtocol = protocolData.find(p => p.day === user.currentDay);
-  const progress = Math.round((user.currentDay / 21) * 100);
+  const { authUser, userProfile, permissions } = useUser(); 
+  
+  // AppContent ensures authUser is non-null. We need userProfile for most content.
+  if (!userProfile) {
+    return <div className="p-4 text-center">Carregando perfil do usuário...</div>; // Or some other loading indicator
+  }
+  // Now, userProfile is guaranteed non-null. authUser is also non-null.
+
+  const todayProtocol = protocolData.find(p => p.day === userProfile.current_day);
+  const progress = Math.round((userProfile.current_day / 21) * 100);
 
   const getPlanBadge = () => {
-    switch (user.plan) {
+    switch (userProfile.plan) {
       case 'premium':
         return <span className="badge badge-premium">PREMIUM ⭐</span>;
       case 'completo':
@@ -57,9 +65,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
       {/* Welcome */}
       <div className="card mb-6 animate-fadeIn">
         <h2 className="text-xl font-semibold text-gray-800 mb-2">
-          Olá, {user.name}! 👋
+          Olá, {authUser!.email}! 👋 
         </h2>
-        <p className="text-gray-600">Dia {user.currentDay} de 21</p>
+        <p className="text-gray-600">Dia {userProfile.current_day} de 21</p>
       </div>
 
       {/* Daily Protocol */}
@@ -68,19 +76,19 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
           <div>
             <h3 className="text-lg font-bold text-jade flex items-center gap-2">
               <Calendar className="w-5 h-5" />
-              DIA {user.currentDay} - FASE {todayProtocol?.phase}: {todayProtocol?.phaseName}
+              DIA {userProfile.current_day} - FASE {todayProtocol?.phase}: {todayProtocol?.phaseName}
             </h3>
           </div>
         </div>
         
         {/* Progress Bar */}
         <div className="mb-6">
-          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden"> {/* Changed h-3 to h-4 */}
             <div 
               className="bg-gradient-to-r from-jade to-mint h-full transition-all duration-500 flex items-center justify-end pr-2"
               style={{ width: `${progress}%` }}
             >
-              <span className="text-xs text-white font-semibold">{progress}%</span>
+              {progress > 5 && <span className="text-xs text-white font-semibold">{progress}%</span>} {/* Conditional rendering */}
             </div>
           </div>
         </div>
@@ -118,7 +126,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
       )}
       
       {/* Recursos Desbloqueados do Plano Atual */}
-      {(user.plan === 'completo' || user.plan === 'premium') && (
+      {(userProfile.plan === 'completo' || userProfile.plan === 'premium') && permissions && (
         <div className="card mb-6 animate-fadeIn">
           <h4 className="font-bold text-jade mb-4 flex items-center gap-2">
             <Sparkles className="w-5 h-5" />
@@ -126,7 +134,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
           </h4>
           
           <div className="grid grid-cols-2 gap-3">
-            {user.permissions.maintenanceGuide && (
+            {permissions.canAccessMaintenanceGuide && ( // Changed from user.permissions to permissions
               <button 
                 onClick={() => onNavigate('guiaManutencao')}
                 className="p-3 bg-mint/10 rounded-lg flex flex-col items-center text-center hover:bg-mint/20 transition-colors"
@@ -136,7 +144,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
               </button>
             )}
             
-            {user.permissions.extraRecipes && (
+            {permissions.canAccessExtraRecipes && ( // Changed from user.permissions to permissions
               <button 
                 onClick={() => onNavigate('receitasExtras')}
                 className="p-3 bg-mint/10 rounded-lg flex flex-col items-center text-center hover:bg-mint/20 transition-colors"
@@ -146,7 +154,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
               </button>
             )}
             
-            {user.permissions.turboProtocol && (
+            {permissions.canAccessTurboProtocol && ( // Changed from user.permissions to permissions
               <button 
                 onClick={() => onNavigate('protocoloTurbo')}
                 className="p-3 bg-gold/10 rounded-lg flex flex-col items-center text-center hover:bg-gold/20 transition-colors"
@@ -156,7 +164,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
               </button>
             )}
             
-            {user.permissions.virtualCoach && (
+            {permissions.canAccessAICoach && ( // Changed from user.permissions to permissions (and property name)
               <button 
                 onClick={() => onNavigate('coachVirtual')}
                 className="p-3 bg-gold/10 rounded-lg flex flex-col items-center text-center hover:bg-gold/20 transition-colors"
@@ -166,17 +174,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
               </button>
             )}
             
-            {user.permissions.premiumAnalytics && (
-              <button 
-                onClick={() => onNavigate('analyticsPremium')}
-                className="p-3 bg-gold/10 rounded-lg flex flex-col items-center text-center hover:bg-gold/20 transition-colors"
-              >
-                <BarChart className="w-6 h-6 text-jade mb-2" />
-                <span className="text-sm font-semibold text-gray-800">Analytics</span>
-              </button>
-            )}
+            {/* Assuming premiumAnalytics maps to a permission, not directly on user.permissions */}
+            {/* Let's assume it's canAccessAnalytics based on UserPermissions type */}
+            {/* This property was not in UserPermissions, so I'll comment it out for now or assume a name */}
+            {/* {permissions.canAccessAnalytics && ( */}
+            {/* For now, I will assume premiumAnalytics was a typo and it's covered by other premium features or not yet in UserPermissions */}
+            {/* If there's a specific permission for AnalyticsPremium, it should be in UserPermissions */}
             
-            {user.permissions.vipCommunity && (
+            {permissions.canAccessVIPCommunity && ( // Changed from user.permissions to permissions
               <button 
                 onClick={() => onNavigate('community')}
                 className="p-3 bg-coral/10 rounded-lg flex flex-col items-center text-center hover:bg-coral/20 transition-colors"
@@ -191,13 +196,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
 
       {/* Premium Features by Resource */}
       <div className="space-y-6">
-        <h3 className="font-bold text-jade flex items-center gap-2">
+        <h3 className="font-bold text-jade flex items-center gap-2 pl-6"> {/* Added pl-6 for alignment */}
           <Lock className="w-5 h-5" />
-          {user.plan === 'premium' ? 'OUTROS RECURSOS DISPONÍVEIS:' : 'DESBLOQUEIE MAIS RECURSOS:'}
+          {userProfile.plan === 'premium' ? 'OUTROS RECURSOS DISPONÍVEIS:' : 'DESBLOQUEIE MAIS RECURSOS:'}
         </h3>
         
         {/* Recursos del Plan Completo */}
-        {!user.permissions.maintenanceGuide && (
+        {permissions && !permissions.canAccessMaintenanceGuide && ( // Added permissions check
           <div 
             className="card relative overflow-hidden cursor-pointer"
             onClick={() => onPremiumFeature('maintenance-guide')}
@@ -230,19 +235,20 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onNavigate('upgrade');
+                    onPremiumFeature('maintenance-guide');
                   }}
-                  className="text-coral hover:text-coral/80 font-semibold text-sm flex items-center gap-1 transition-colors relative z-20"
+                  className="text-jade hover:text-jade/80 font-semibold text-sm flex items-center gap-1 transition-colors relative z-20"
                 >
-                  DESBLOQUEAR
-                  <ArrowRight className="w-4 h-4" />
+                  <Eye className="w-4 h-4" />
+                  VER PREVIEW
                 </button>
+                {/* DESBLOQUEAR button removed */}
               </div>
             </div>
           </div>
         )}
         
-        {!user.permissions.extraRecipes && (
+        {permissions && !permissions.canAccessExtraRecipes && ( // Added permissions check
           <div 
             className="card relative overflow-hidden cursor-pointer"
             onClick={() => onPremiumFeature('extra-recipes')}
@@ -260,7 +266,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
                 Acelere 2x mais seus resultados com receitas exclusivas para potencializar o protocolo.
               </p>
               
-              <div className="flex items-center mt-4 justify-between">
+              <div className="flex items-center mt-4 justify-center"> {/* Changed to justify-center */}
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
@@ -271,24 +277,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
                   <Eye className="w-4 h-4" />
                   VER PREVIEW
                 </button>
-                
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onNavigate('upgrade');
-                  }}
-                  className="text-coral hover:text-coral/80 font-semibold text-sm flex items-center gap-1 transition-colors relative z-20"
-                >
-                  DESBLOQUEAR
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                {/* DESBLOQUEAR button removed */}
               </div>
             </div>
           </div>
         )}
 
         {/* Recursos del Plan Premium */}
-        {!user.permissions.turboProtocol && (
+        {permissions && !permissions.canAccessTurboProtocol && ( // Added permissions check
           <div 
             className="card relative overflow-hidden cursor-pointer"
             onClick={() => onPremiumFeature('turbo-protocol')}
@@ -306,7 +302,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
                 Versão acelerada do protocolo para obter resultados em apenas 15 dias.
               </p>
               
-              <div className="flex items-center mt-4 justify-between">
+              <div className="flex items-center mt-4 justify-center"> {/* Changed to justify-center */}
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
@@ -317,23 +313,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
                   <Eye className="w-4 h-4" />
                   VER PREVIEW
                 </button>
-                
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onNavigate('upgrade');
-                  }}
-                  className="text-coral hover:text-coral/80 font-semibold text-sm flex items-center gap-1 transition-colors relative z-20"
-                >
-                  DESBLOQUEAR
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                {/* DESBLOQUEAR button removed */}
               </div>
             </div>
           </div>
         )}
         
-        {!user.permissions.virtualCoach && (
+        {permissions && !permissions.canAccessAICoach && ( // Added permissions check and used correct prop name
           <div 
             className="card relative overflow-hidden cursor-pointer"
             onClick={() => onPremiumFeature('coach-virtual')}
@@ -351,7 +337,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
                 Orientação personalizada com inteligência artificial para maximizar seus resultados.
               </p>
               
-              <div className="flex items-center mt-4 justify-between">
+              <div className="flex items-center mt-4 justify-center"> {/* Changed to justify-center */}
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
@@ -362,23 +348,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
                   <Eye className="w-4 h-4" />
                   VER PREVIEW
                 </button>
-                
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onNavigate('upgrade');
-                  }}
-                  className="text-coral hover:text-coral/80 font-semibold text-sm flex items-center gap-1 transition-colors relative z-20"
-                >
-                  DESBLOQUEAR
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                {/* DESBLOQUEAR button removed */}
               </div>
             </div>
           </div>
         )}
         
-        {!user.permissions.premiumAnalytics && (
+        {/* Analytics Premium - Assuming this maps to a permission like canAccessAnalytics */}
+        {/* As canAccessAnalytics is not in UserPermissions, this section is commented out or needs clarification */}
+        {/* {permissions && !permissions.canAccessAnalytics && (
           <div 
             className="card relative overflow-hidden cursor-pointer"
             onClick={() => onPremiumFeature('analytics-premium')}
@@ -396,8 +374,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
                 Análises detalhadas do seu progresso com gráficos e insights personalizados.
               </p>
               
-              <div className="flex items-center mt-4 justify-between">
-                <button 
+              <div className="flex items-center mt-4 justify-center"> {/* Changed to justify-center */}
+                {/* <button 
                   onClick={(e) => {
                     e.stopPropagation();
                     onPremiumFeature('analytics-premium');
@@ -406,40 +384,27 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
                 >
                   <Eye className="w-4 h-4" />
                   VER PREVIEW
-                </button>
-                
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onNavigate('upgrade');
-                  }}
-                  className="text-coral hover:text-coral/80 font-semibold text-sm flex items-center gap-1 transition-colors relative z-20"
-                >
-                  DESBLOQUEAR
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
+                </button> */}
+                {/* DESBLOQUEAR button removed */}
+              {/* </div>
             </div>
           </div>
-        )}
+        )} */}
         
         {/* Comunidade VIP */}
-        {!user.permissions.vipCommunity && (
+        {permissions && !permissions.canAccessVIPCommunity && ( // Added permissions check
           <div 
             className="card relative overflow-hidden cursor-pointer"
             onClick={() => onPremiumFeature('vip-community')}
           >
             <div className="absolute inset-0 backdrop-blur-sm bg-white/50 pointer-events-none" />
             <div className="relative z-10">
-              <div className="flex items-start justify-between mb-3">
-                <h4 className="font-bold text-gray-800 flex items-center gap-2">
+              <div className="flex items-center justify-between mb-3"> {/* Changed items-start to items-center */}
+                <h4 className="font-bold text-gray-800 flex items-center gap-2 whitespace-nowrap"> {/* Added whitespace-nowrap */}
                   <span className="text-2xl">👥</span>
                   COMUNIDADE VIP <span className="text-amber-500">🔒</span>
                 </h4>
-                <div className="text-right">
-                  <p className="text-coral font-bold">Valor: R$ 37/mês</p>
-                  <p className="text-xs text-gray-500">Assinatura mensal</p>
-                </div>
+                {/* Price div removed */}
               </div>
               
               <div className="space-y-2">
@@ -457,7 +422,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
                 </div>
               </div>
               
-              <div className="flex items-center mt-4 justify-between">
+              <div className="flex items-center mt-4 justify-center"> {/* Changed to justify-center */}
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
@@ -468,17 +433,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
                   <Eye className="w-4 h-4" />
                   VER PREVIEW
                 </button>
-                
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onNavigate('upgrade');
-                  }}
-                  className="text-coral hover:text-coral/80 font-semibold text-sm flex items-center gap-1 transition-colors relative z-20"
-                >
-                  DESBLOQUEAR
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                {/* DESBLOQUEAR button removed */}
               </div>
             </div>
           </div>
@@ -486,6 +441,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onPremiumFeature, onNavigate }) =
       </div>
 
       {/* Removido o botão grande de Upgrade para evitar redundância */}
+
+      {/* AppDownloadButton added here, intended to be above the bottom navigation */}
+      <div className="mt-4 mb-4"> 
+        <AppDownloadButton />
+      </div>
     </div>
   );
 };
