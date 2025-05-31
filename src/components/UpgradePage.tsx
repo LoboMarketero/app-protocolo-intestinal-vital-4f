@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react'; // Removed useState as it's no longer used
 import { useUser } from '../context/UserContext';
 import { planDetails } from '../data/premiumFeatures';
-import { ArrowLeft, Check, Star, Crown, Sparkles, Users, X } from 'lucide-react';
+import { ArrowLeft, Check, Star, Crown, Sparkles, Users } from 'lucide-react'; // Removed X
 
 interface UpgradePageProps {
   onBack: () => void;
@@ -16,7 +16,7 @@ const checkoutLinks = {
 
 const UpgradePage: React.FC<UpgradePageProps> = ({ onBack }) => {
   const { authUser, userProfile, permissions } = useUser();
-  const [showSuccessMessage, setShowSuccessMessage] = useState<string | null>(null); // Kept for potential future use, not for VIP cancellation
+  // const [showSuccessMessage, setShowSuccessMessage] = useState<string | null>(null); // Removed as it's no longer used
 
   // Add a guard for authUser, userProfile and permissions for safety
   if (!authUser || !userProfile || !permissions) {
@@ -223,18 +223,7 @@ const UpgradePage: React.FC<UpgradePageProps> = ({ onBack }) => {
         </div>
       </div>
       
-      {/* Success Message */}
-      {showSuccessMessage && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
-          <div className="bg-white rounded-lg p-6 max-w-md shadow-2xl text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="w-8 h-8 text-green-600" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-800 mb-2">Sucesso!</h3>
-            <p className="text-gray-700">{showSuccessMessage}</p>
-          </div>
-        </div>
-      )}
+      {/* Success Message Removed */}
 
       {/* Guarantee */}
       <div className="mt-8 text-center">

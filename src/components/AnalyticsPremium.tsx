@@ -1,31 +1,29 @@
 import React, { useState } from 'react';
 import { useUser } from '../context/UserContext';
-import { ArrowLeft, BarChart, LineChart, PieChart, TrendingUp, Filter, Calendar, Download, Share2 } from 'lucide-react';
+import { ArrowLeft, BarChart, LineChart, PieChart, TrendingUp, Filter, Calendar, Download, Share2, Activity } from 'lucide-react'; // Added Activity
+import LockedPreview from './LockedPreview'; // Import LockedPreview
 
 interface AnalyticsPremiumProps {
   onBack: () => void;
 }
 
 const AnalyticsPremium: React.FC<AnalyticsPremiumProps> = ({ onBack }) => {
-  const { user } = useUser();
+  const { userProfile } = useUser(); // Use userProfile from context
   const [timeframe, setTimeframe] = useState<'dia' | 'semana' | 'mes'>('semana');
 
-  // Verificar permissão
-  if (!user.permissions.premiumAnalytics) {
+  if (!userProfile) {
+    return <div className="p-4 text-center">Carregando dados do usuário...</div>;
+  }
+
+  // Verificar permissão - Assuming Analytics Premium is for 'premium' plan users
+  // A more specific permission like 'canAccessAnalyticsPremium' could be added to UserContext if needed.
+  if (userProfile.plan !== 'premium') {
     return (
       <div className="container mx-auto px-4 py-8 pb-24">
-        <div className="card">
-          <h2 className="text-2xl font-bold text-jade mb-4">Acesso Restrito</h2>
-          <p className="text-gray-600 mb-4">
-            Você precisa do plano Premium para acessar o Analytics Premium.
-          </p>
-          <button 
-            onClick={onBack}
-            className="btn-primary"
-          >
-            Voltar
-          </button>
-        </div>
+        <LockedPreview 
+          componentName="Analytics Premium" 
+          onUpgradeClick={onBack} 
+        />
       </div>
     );
   }
@@ -162,7 +160,7 @@ const AnalyticsPremium: React.FC<AnalyticsPremiumProps> = ({ onBack }) => {
           value="82%"
           change="5%"
           isPositive={true}
-          icon={<ActivityIcon className="w-5 h-5 text-jade" />}
+          icon={<Activity className="w-5 h-5 text-jade" />} 
         />
       </div>
 
@@ -346,22 +344,6 @@ const AnalyticsPremium: React.FC<AnalyticsPremiumProps> = ({ onBack }) => {
   );
 };
 
-// Ícone customizado para atividade metabólica
-const ActivityIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-  </svg>
-);
+// Removed local ActivityIcon as Activity is imported from lucide-react
 
 export default AnalyticsPremium;

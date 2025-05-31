@@ -1,30 +1,27 @@
 import React from 'react';
 import { useUser } from '../context/UserContext';
 import { ArrowLeft, Rocket, Clock, Zap, ChevronRight, Gauge } from 'lucide-react';
+import LockedPreview from './LockedPreview'; // Import LockedPreview
 
 interface ProtocoloTurboProps {
   onBack: () => void;
 }
 
 const ProtocoloTurbo: React.FC<ProtocoloTurboProps> = ({ onBack }) => {
-  const { user } = useUser();
+  const { userProfile, permissions } = useUser(); // Use userProfile and permissions
+
+  if (!userProfile || !permissions) { // Add null check for userProfile
+    return <div className="p-4 text-center">Carregando dados do usuário...</div>;
+  }
 
   // Verificar permissão
-  if (!user.permissions.turboProtocol) {
+  if (!permissions.canAccessTurboProtocol) { // Correct permission check
     return (
       <div className="container mx-auto px-4 py-8 pb-24">
-        <div className="card">
-          <h2 className="text-2xl font-bold text-jade mb-4">Acesso Restrito</h2>
-          <p className="text-gray-600 mb-4">
-            Você precisa do plano Premium para acessar o Protocolo Turbo.
-          </p>
-          <button 
-            onClick={onBack}
-            className="btn-primary"
-          >
-            Voltar
-          </button>
-        </div>
+        <LockedPreview 
+          componentName="PROTOCOLO TURBO" 
+          onUpgradeClick={onBack} 
+        />
       </div>
     );
   }

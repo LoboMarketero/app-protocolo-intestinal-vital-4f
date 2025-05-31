@@ -6,12 +6,12 @@ import {
   Utensils, 
   Rocket, 
   BrainCircuit, 
-  BarChart, 
+  // BarChart, // Unused import
   Users,
-  ChevronRight,
-  DownloadCloud // For consistency, though DownloadButton imports it
+  ChevronRight
+  // DownloadCloud // Unused import, AppDownloadButton handles its own icon
 } from 'lucide-react';
-import AppDownloadButton from './AppDownloadButton'; // Changed to import AppDownloadButton
+import AppDownloadButton from './AppDownloadButton';
 
 interface SideMenuProps {
   isOpen: boolean;
@@ -20,10 +20,9 @@ interface SideMenuProps {
 }
 
 const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
-  const { authUser, userProfile, permissions } = useUser(); // Updated destructuring
+  const { permissions } = useUser(); // Only permissions is used directly in this component
   
-  // AppContent should ensure authUser, userProfile and therefore permissions are non-null when SideMenu is rendered.
-  // Adding a guard for permissions for safety, though ideally AppContent ensures this.
+  // AppContent should ensure permissions are non-null when SideMenu is rendered.
   if (!permissions) {
     // This case should ideally not be reached if AppContent's logic is correct.
     // Return null or a loading indicator if permissions might not be ready.

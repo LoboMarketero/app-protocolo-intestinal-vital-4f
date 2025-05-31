@@ -6,9 +6,9 @@ import {
   Package, 
   Calendar, 
   Shield, 
-  LogOut,
-  Sun,
-  Moon
+  LogOut
+  // Sun, // Removed as darkMode is not in context
+  // Moon // Removed as darkMode is not in context
 } from 'lucide-react';
 
 interface ProfilePageProps {
@@ -17,10 +17,14 @@ interface ProfilePageProps {
 }
 
 const ProfilePage: React.FC<ProfilePageProps> = ({ onBack, onNavigate }) => {
-  const { user, darkMode, toggleDarkMode } = useUser();
+  const { userProfile, permissions, logout } = useUser(); // Use userProfile, permissions, and logout
+
+  if (!userProfile || !permissions) {
+    return <div className="p-4 text-center">Carregando dados do perfil...</div>;
+  }
 
   const getPlanInfo = () => {
-    switch (user.plan) {
+    switch (userProfile.plan) { // Use userProfile.plan
       case 'premium':
         return {
           name: 'PREMIUM',
@@ -35,7 +39,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack, onNavigate }) => {
           icon: '⭐',
           description: 'Guia de manutenção e receitas extras incluídos'
         };
-      default:
+      default: // 'essencial'
         return {
           name: 'ESSENCIAL',
           badgeClass: 'bg-jade/20 text-jade dark:bg-jade/30 dark:text-mint',
@@ -46,6 +50,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack, onNavigate }) => {
   };
 
   const planInfo = getPlanInfo();
+  const userDisplayName = userProfile.email?.split('@')[0] || 'Usuário'; // Use email as a placeholder for name
 
   return (
     <div className="container mx-auto px-4 py-8 pb-24">
@@ -65,7 +70,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack, onNavigate }) => {
         <div className="w-20 h-20 bg-mint/20 dark:bg-mint/10 rounded-full flex items-center justify-center text-jade dark:text-mint mb-3">
           <User className="w-10 h-10" />
         </div>
-        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">{user.name}</h2>
+        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">{userDisplayName}</h2>
         <div className={`px-3 py-1 rounded-full text-xs font-bold mt-2 flex items-center gap-1 ${planInfo.badgeClass}`}>
           <span>{planInfo.icon}</span>
           <span>PLANO {planInfo.name}</span>
@@ -86,7 +91,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack, onNavigate }) => {
               <Calendar className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               <span className="text-gray-700 dark:text-gray-300">Progresso</span>
             </div>
-            <span className="text-gray-800 dark:text-gray-200 font-medium">Dia {user.currentDay} de 21</span>
+            <span className="text-gray-800 dark:text-gray-200 font-medium">Dia {userProfile.current_day || 0} de 21</span>
           </div>
           
           <div className="flex items-center justify-between">
@@ -114,8 +119,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack, onNavigate }) => {
           Configurações
         </h3>
         
+        {/* Dark Mode Toggle Removed as it's not in UserContext */}
+        {/* 
         <div className="space-y-4">
-          {/* Toggle de Tema */}
           <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50">
             <div className="flex items-center gap-2">
               {darkMode ? 
@@ -131,7 +137,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack, onNavigate }) => {
               <span className={`${darkMode ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform dark:bg-mint`} />
             </button>
           </div>
-        </div>
+        </div> 
+        */}
+        <p className="text-sm text-gray-500 dark:text-gray-400">Outras configurações estarão disponíveis em breve.</p>
       </div>
 
       {/* Permissões e Recursos */}
@@ -154,7 +162,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack, onNavigate }) => {
           
           <div className="flex items-center justify-between">
             <span className="text-gray-700 dark:text-gray-300">Guia de Manutenção</span>
-            {user.permissions.maintenanceGuide ? (
+            {permissions.canAccessMaintenanceGuide ? (
               <span className="text-green-600 dark:text-green-400 font-medium">✓</span>
             ) : (
               <span className="text-right text-gray-400 dark:text-gray-500 text-sm">Plano Completo ou Premium</span>
@@ -163,7 +171,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack, onNavigate }) => {
           
           <div className="flex items-center justify-between">
             <span className="text-gray-700 dark:text-gray-300">Receitas Extras</span>
-            {user.permissions.extraRecipes ? (
+            {permissions.canAccessExtraRecipes ? (
               <span className="text-green-600 dark:text-green-400 font-medium">✓</span>
             ) : (
               <span className="text-right text-gray-400 dark:text-gray-500 text-sm">Plano Completo ou Premium</span>
@@ -172,7 +180,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack, onNavigate }) => {
           
           <div className="flex items-center justify-between">
             <span className="text-gray-700 dark:text-gray-300">Protocolo Turbo</span>
-            {user.permissions.turboProtocol ? (
+            {permissions.canAccessTurboProtocol ? (
               <span className="text-green-600 dark:text-green-400 font-medium">✓</span>
             ) : (
               <span className="text-right text-gray-400 dark:text-gray-500 text-sm">Plano Premium</span>
@@ -181,7 +189,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack, onNavigate }) => {
           
           <div className="flex items-center justify-between">
             <span className="text-gray-700 dark:text-gray-300">Análises Premium</span>
-            {user.permissions.premiumAnalytics ? (
+            {/* Assuming 'premium' plan implies access, as no specific permission exists */}
+            {userProfile.plan === 'premium' ? (
               <span className="text-green-600 dark:text-green-400 font-medium">✓</span>
             ) : (
               <span className="text-right text-gray-400 dark:text-gray-500 text-sm">Plano Premium</span>
@@ -190,7 +199,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack, onNavigate }) => {
           
           <div className="flex items-center justify-between">
             <span className="text-gray-700 dark:text-gray-300">Coach Virtual</span>
-            {user.permissions.virtualCoach ? (
+            {permissions.canAccessAICoach ? (
               <span className="text-green-600 dark:text-green-400 font-medium">✓</span>
             ) : (
               <span className="text-right text-gray-400 dark:text-gray-500 text-sm">Plano Premium</span>
@@ -199,7 +208,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack, onNavigate }) => {
           
           <div className="flex items-center justify-between">
             <span className="text-gray-700 dark:text-gray-300">Comunidade VIP</span>
-            {user.permissions.vipCommunity ? (
+            {permissions.canAccessVIPCommunity ? (
               <span className="text-green-600 dark:text-green-400 font-medium">✓</span>
             ) : (
               <span className="text-right text-gray-400 dark:text-gray-500 text-sm">Assinatura Mensal</span>
@@ -209,7 +218,10 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBack, onNavigate }) => {
       </div>
 
       {/* Logout */}
-      <button className="w-full flex items-center justify-center gap-2 p-3 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+      <button 
+        onClick={logout}
+        className="w-full flex items-center justify-center gap-2 p-3 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+      >
         <LogOut className="w-5 h-5 text-gray-600 dark:text-gray-400" />
         <span className="text-gray-700 dark:text-gray-300 font-medium">Sair</span>
       </button>

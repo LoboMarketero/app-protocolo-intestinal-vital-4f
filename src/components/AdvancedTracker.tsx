@@ -1,7 +1,7 @@
 import React, { useState } from 'react'; // Added useState for activeTab
 import LockedPreview from './LockedPreview';
 import { useUser } from '../context/UserContext'; // Import useUser
-import { TrendingUp } from 'lucide-react'; // For upgrade button icon
+// import { TrendingUp } from 'lucide-react'; // TrendingUp is not used directly in this component when access is granted. LockedPreview handles its own button.
 
 interface AdvancedTrackerProps {
   // userPlan prop will be removed, access via context

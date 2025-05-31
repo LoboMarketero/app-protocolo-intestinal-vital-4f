@@ -17,7 +17,7 @@ export const LoginPage = () => {
     setError('')
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data: _data, error } = await supabase.auth.signInWithPassword({ // Prefixed data with _
         email,
         password
       })

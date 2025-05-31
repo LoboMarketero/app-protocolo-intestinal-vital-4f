@@ -12,9 +12,9 @@ import {
   Utensils, 
   Rocket, 
   BrainCircuit, 
-  BarChart, 
-  Users,
-  ArrowRight
+  // BarChart, // Unused import
+  Users
+  // ArrowRight // Unused import
 } from 'lucide-react';
 
 interface DashboardProps {
