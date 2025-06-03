@@ -25,6 +25,11 @@ export interface ProtocolPhase {
   description: string;
 }
 
+export interface ChecklistItem {
+  text: string;
+  checked?: boolean;
+}
+
 export interface DailyProtocol {
   day: number;
   phase: number;
@@ -33,17 +38,24 @@ export interface DailyProtocol {
     title: string;
     description: string;
     preparation?: string;
+    checklist?: ChecklistItem[];
   };
   afternoon: {
     title: string;
     description: string;
     preparation?: string;
+    checklist?: ChecklistItem[];
   };
   night: {
     title: string;
     description: string;
     preparation?: string;
+    checklist?: ChecklistItem[];
   };
+  ingredients?: {
+    category: string;
+    items: ChecklistItem[];
+  }[];
 }
 
 export interface PremiumFeature {

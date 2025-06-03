@@ -25,14 +25,15 @@ export const premiumFeatures: PremiumFeature[] = [
     planRequired: 'premium',
     icon: 'Rocket'
   },
-  {
-    id: 'ai-coach',
-    title: 'COACH VIRTUAL IA',
-    description: 'Análises e recomendações personalizadas',
-    price: 'Incluído no Plano Premium',
-    planRequired: 'premium',
-    icon: 'BrainCircuit'
-  },
+  // Coach Virtual IA temporalmente oculto
+  // {
+  //   id: 'ai-coach',
+  //   title: 'COACH VIRTUAL IA',
+  //   description: 'Análises e recomendações personalizadas',
+  //   price: 'Incluído no Plano Premium',
+  //   planRequired: 'premium',
+  //   icon: 'BrainCircuit'
+  // },
   {
     id: 'vip-community',
     title: 'COMUNIDADE VIP',
@@ -49,7 +50,7 @@ export const planDetails = {
     features: [
       'Protocolo básico de 21 dias',
       'Guia de preparação',
-      'Acompanhamento de progresso'
+      'Acesso ao aplicativo' // Cambiado de 'Acompanhamento de progresso'
     ],
     price: 'R$ 47',
     fullPrice: 47

@@ -47,12 +47,9 @@ export const LoginPage = () => {
         <div className="text-center mb-8">
           <img src="/piv4f-logo.png" alt="Protocolo Vital 4F" className="h-12 mx-auto mb-4" /> 
           {/* Logo added, adjusted height and margin */}
-          <h1 className="text-2xl font-bold text-jade-800 mb-2">
+          <h1 className="text-2xl font-bold text-jade-800">
             Acesse sua conta
           </h1>
-          <p className="text-jade-600">
-            Bem-vindo de volta ao Protocolo Vital 4F!
-          </p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">

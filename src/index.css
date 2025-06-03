@@ -27,8 +27,8 @@
 }
 
 .card {
-  /* Added bg-white/70 for better visibility and a subtle border */
-  @apply bg-white/70 border border-white/20 glassmorphism rounded-2xl p-6 hover:shadow-2xl transition-shadow duration-300;
+  /* Updated for better visibility: opaque background, standard shadow, gray border */
+  @apply bg-white border border-gray-200 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-shadow duration-300;
 }
 
 .badge {

@@ -2,6 +2,7 @@
 
 export interface NavigationProps {
   onBack?: () => void;
+  onNavigate?: (screen: string) => void;
 }
 
 export interface PlanBasedProps {

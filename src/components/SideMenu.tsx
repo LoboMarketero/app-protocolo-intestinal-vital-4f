@@ -5,13 +5,13 @@ import {
   BookOpen, 
   Utensils, 
   Rocket, 
-  BrainCircuit, 
+  // BrainCircuit, // Removed Coach Virtual icon
   // BarChart, // Unused import
   Users,
   ChevronRight
   // DownloadCloud // Unused import, AppDownloadButton handles its own icon
 } from 'lucide-react';
-import AppDownloadButton from './AppDownloadButton';
+// import AppDownloadButton from './AppDownloadButton';
 
 interface SideMenuProps {
   isOpen: boolean;
@@ -53,13 +53,18 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex justify-between items-center p-4 border-b border-gray-200">
-            <h2 className="text-lg font-bold text-jade">Protocolo Vital 4F</h2>
-            <button 
-              onClick={onClose}
-              className="p-2 rounded-full hover:bg-gray-100"
-            >
-              <X className="w-5 h-5 text-gray-500" />
-            </button>
+            <div className="flex-1"></div> {/* Spacer to center logo */}
+            <div className="flex justify-center flex-1">
+              <img src="/pivlogo-solo.png" alt="Logo" className="h-10 w-auto" />
+            </div>
+            <div className="flex justify-end flex-1">
+              <button 
+                onClick={onClose}
+                className="p-2 rounded-full hover:bg-gray-100"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
           </div>
           
           {/* Contenido */}
@@ -89,7 +94,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
                 >
                   <div className="flex items-center gap-3">
                     <Utensils className="w-5 h-5 text-jade" />
-                    <span className="text-gray-700">15 Receitas Extras</span>
+                    <span className="text-gray-700">25 Receitas Extras</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-gray-400" />
                 </button>
@@ -109,33 +114,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
                 </button>
               )}
               
-              {/* Coach Virtual (Plano Premium) */}
-              {permissions.canAccessAICoach && ( // Corrected to canAccessAICoach
-                <button 
-                  onClick={() => handleNavigate('coachVirtual')}
-                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
-                >
-                  <div className="flex items-center gap-3">
-                    <BrainCircuit className="w-5 h-5 text-jade" />
-                    <span className="text-gray-700">Coach Virtual</span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-gray-400" />
-                </button>
-              )}
-              
-              {/* Analytics Premium (Plano Premium) - This permission is not in UserPermissions type */}
-              {/* {permissions.premiumAnalytics && (
-                <button 
-                  onClick={() => handleNavigate('analyticsPremium')}
-                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
-                >
-                  <div className="flex items-center gap-3">
-                    <BarChart className="w-5 h-5 text-jade" />
-                    <span className="text-gray-700">Análises Premium</span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-gray-400" />
-                </button>
-              )} */}
+              {/* Coach Virtual removed as requested */}
               
               {/* Comunidade VIP (Assinatura mensal) */}
               {permissions.canAccessVIPCommunity && (
@@ -150,15 +129,33 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
                   <ChevronRight className="w-4 h-4 text-gray-400" />
                 </button>
               )}
-              
-              {/* FAQ (Free resource) - REMOVED as per user request */}
-            </div>
-            
-            {/* Adding Download App button here */}
-            <div className="my-4 py-2 border-t border-b border-gray-200">
-              <AppDownloadButton />
             </div>
 
+            <h3 className="text-sm font-bold text-gray-500 mb-2">ACESSOS RÁPIDOS</h3>
+            <div className="space-y-1 mb-6">
+              <button 
+                onClick={() => handleNavigate('protocol')}
+                className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">📅</span>
+                  <span className="text-gray-700">Protocolo Diário</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              </button>
+              
+              <button 
+                onClick={() => handleNavigate('faq')}
+                className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">❓</span>
+                  <span className="text-gray-700">Perguntas Frequentes</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              </button>
+            </div>
+            
             <h3 className="text-sm font-bold text-gray-500 mb-2">RECURSOS PREMIUM</h3>
             
             <div className="space-y-1">
@@ -190,7 +187,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
                       <Utensils className="w-5 h-5 text-gray-400" />
                       <span className="absolute -top-1 -right-1 text-xs">🔒</span>
                     </div>
-                    <span className="text-gray-500">15 Receitas Extras</span>
+                    <span className="text-gray-500">25 Receitas Extras</span>
                   </div>
                   <span className="text-xs font-medium text-coral">Desbloquear</span>
                 </button>
@@ -213,39 +210,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
                 </button>
               )}
               
-              {/* Coach Virtual (Bloqueado) */}
-              {!permissions.canAccessAICoach && ( // Corrected to canAccessAICoach
-                <button 
-                  onClick={() => handleNavigate('upgrade')}
-                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <BrainCircuit className="w-5 h-5 text-gray-400" />
-                      <span className="absolute -top-1 -right-1 text-xs">🔒</span>
-                    </div>
-                    <span className="text-gray-500">Coach Virtual</span>
-                  </div>
-                  <span className="text-xs font-medium text-coral">Desbloquear</span>
-                </button>
-              )}
-              
-              {/* Analytics Premium (Bloqueado) - This permission is not in UserPermissions type */}
-              {/* {!permissions.premiumAnalytics && (
-                <button 
-                  onClick={() => handleNavigate('upgrade')}
-                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <BarChart className="w-5 h-5 text-gray-400" />
-                      <span className="absolute -top-1 -right-1 text-xs">🔒</span>
-                    </div>
-                    <span className="text-gray-500">Análises Premium</span>
-                  </div>
-                  <span className="text-xs font-medium text-coral">Desbloquear</span>
-                </button>
-              )} */}
+              {/* Coach Virtual removed as requested */}
               
               {/* Comunidade VIP (Bloqueado) */}
               {!permissions.canAccessVIPCommunity && (
@@ -275,7 +240,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose, onNavigate }) => {
               Fazer Upgrade
             </button>
             <p className="text-xs text-gray-500 text-center mt-4">
-              Versão 1.0.0 • Protocolo Vital 4F
+              Versão 1.0.0 • Protocolo Intestinal Vital 4F
             </p>
           </div>
         </div>

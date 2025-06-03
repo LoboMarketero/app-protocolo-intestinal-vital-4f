@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useUser } from '../context/UserContext';
-import { ArrowLeft, Utensils, Coffee, Droplet, Apple } from 'lucide-react';
+import { ArrowLeft, Utensils, Coffee, Droplet, Apple, ChevronDown, ChevronUp } from 'lucide-react';
 import LockedPreview from './LockedPreview'; // Import LockedPreview
 
 interface ReceitasExtrasProps {
@@ -176,6 +176,139 @@ const ReceitasExtras: React.FC<ReceitasExtrasProps> = ({ onBack }) => {
       category: "sucos"
     },
     {
+      title: "Smoothie Antioxidante",
+      description: "Rico em vitaminas e antioxidantes para fortalecer o sistema imunológico.",
+      ingredients: [
+        "1 xícara de frutas vermelhas (morango, amora, mirtilo)",
+        "1/2 banana congelada",
+        "1 colher de sopa de semente de chia",
+        "1 colher de chá de mel puro (opcional)",
+        "200ml de leite vegetal de amêndoas"
+      ],
+      preparation: "Bata todos os ingredientes no liquidificador até obter uma mistura homogênea e cremosa. Sirva imediatamente.",
+      icon: <Coffee className="w-6 h-6 text-jade" />,
+      category: "smoothies"
+    },
+    {
+      title: "Chá Digestivo de Ervas",
+      description: "Combinação de ervas que auxiliam na digestão e aliviam desconfortos intestinais.",
+      ingredients: [
+        "1 colher de chá de camomila desidratada",
+        "1 colher de chá de erva-doce",
+        "1/2 colher de chá de folhas de hortelã",
+        "1 rodela de gengibre fresco",
+        "250ml de água fervente"
+      ],
+      preparation: "Coloque todas as ervas em uma xícara, adicione a água fervente e deixe em infusão por 5-7 minutos. Coe e beba após as refeições.",
+      icon: <Coffee className="w-6 h-6 text-jade" />,
+      category: "chas"
+    },
+    {
+      title: "Água Detox de Pepino e Gengibre",
+      description: "Refrescante e desintoxicante, perfeita para dias quentes.",
+      ingredients: [
+        "1 litro de água filtrada",
+        "1/2 pepino fatiado",
+        "3 rodelas de gengibre",
+        "Folhas de hortelã a gosto",
+        "1 limão fatiado"
+      ],
+      preparation: "Coloque todos os ingredientes em uma jarra e deixe repousar por pelo menos 2 horas na geladeira antes de consumir.",
+      icon: <Droplet className="w-6 h-6 text-jade" />,
+      category: "aguas"
+    },
+    {
+      title: "Shot Imunidade",
+      description: "Concentrado de nutrientes para fortalecer a imunidade e combater inflamações.",
+      ingredients: [
+        "1 colher de sopa de cúrcuma fresca ralada",
+        "1 colher de sopa de gengibre fresco ralado",
+        "Suco de 1 limão",
+        "1 pitada de pimenta-do-reino",
+        "1 colher de chá de mel puro (opcional)"
+      ],
+      preparation: "Misture todos os ingredientes com 30ml de água filtrada. Tome de uma vez como um shot pela manhã em jejum.",
+      icon: <Droplet className="w-6 h-6 text-jade" />,
+      category: "shots"
+    },
+    {
+      title: "Suco Verde Avançado",
+      description: "Versão potencializada para a fase de desintoxicação.",
+      ingredients: [
+        "2 folhas de couve",
+        "1 pepino médio",
+        "1 talo de aipo",
+        "1/2 maçã verde",
+        "Suco de 1 limão",
+        "1 colher de chá de spirulina em pó",
+        "1 colher de chá de chlorella em pó",
+        "200ml de água de coco"
+      ],
+      preparation: "Bata todos os ingredientes no liquidificador. Consuma imediatamente para aproveitar ao máximo os nutrientes.",
+      icon: <Coffee className="w-6 h-6 text-jade" />,
+      category: "sucos"
+    },
+    {
+      title: "Leite Dourado Antiparasitário",
+      description: "Bebida tradicional com propriedades anti-inflamatórias e antiparasitárias.",
+      ingredients: [
+        "250ml de leite vegetal (amêndoas ou coco)",
+        "1 colher de chá de cúrcuma em pó",
+        "1/2 colher de chá de canela em pó",
+        "1 pitada de pimenta preta",
+        "1/2 colher de chá de gengibre em pó",
+        "1 colher de chá de mel cru (opcional)"
+      ],
+      preparation: "Aqueça o leite vegetal sem ferver. Adicione os ingredientes secos e misture bem. Adoce com mel se desejar. Beba antes de dormir.",
+      icon: <Coffee className="w-6 h-6 text-jade" />,
+      category: "chas"
+    },
+    {
+      title: "Pasta Probiótica de Couve",
+      description: "Fermentado natural rico em probióticos para saúde intestinal.",
+      ingredients: [
+        "1 maço de couve picado",
+        "1 colher de sopa de sal marinho",
+        "1 colher de chá de sementes de alcaravia (opcional)",
+        "2 dentes de alho picados",
+        "1 colher de chá de gengibre ralado"
+      ],
+      preparation: "Massageie a couve com o sal até murchar. Adicione os demais ingredientes e coloque em um pote de vidro, pressionando para liberar o líquido. Cubra e deixe fermentar por 7-10 dias à temperatura ambiente. Consuma 1 colher por dia.",
+      icon: <Apple className="w-6 h-6 text-jade" />,
+      category: "probioticos"
+    },
+    {
+      title: "Smoothie Verde Cremoso",
+      description: "Nutrição completa em forma líquida, ideal para substituir refeições na fase de desintoxicação.",
+      ingredients: [
+        "1 xícara de espinafre",
+        "1/2 abacate",
+        "1 banana pequena",
+        "1 colher de sopa de proteína vegetal em pó",
+        "1 colher de sopa de manteiga de amêndoas",
+        "200ml de leite vegetal",
+        "1 colher de chá de sementes de chia"
+      ],
+      preparation: "Bata todos os ingredientes no liquidificador até obter uma mistura cremosa. Consuma imediatamente como café da manhã ou lanche.",
+      icon: <Coffee className="w-6 h-6 text-jade" />,
+      category: "smoothies"
+    },
+    {
+      title: "Tempero Digestivo Caseiro",
+      description: "Mistura de ervas e especiarias para potencializar a digestão e absorção de nutrientes.",
+      ingredients: [
+        "2 colheres de sopa de cúrcuma em pó",
+        "1 colher de sopa de gengibre em pó",
+        "1 colher de sopa de cominho em pó",
+        "1 colher de sopa de orégano seco",
+        "1 colher de chá de pimenta preta moída",
+        "1 colher de chá de sal marinho"
+      ],
+      preparation: "Misture todos os ingredientes e armazene em um pote hermético. Use para temperar carnes, vegetais e saladas durante o protocolo.",
+      icon: <Apple className="w-6 h-6 text-jade" />,
+      category: "outros"
+    },
+    {
       title: "Kefir Probiótico",
       description: "Bebida fermentada rica em probióticos para restaurar a flora intestinal.",
       ingredients: [
@@ -220,7 +353,7 @@ const ReceitasExtras: React.FC<ReceitasExtrasProps> = ({ onBack }) => {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8 pb-24">
+    <div className="container mx-auto px-4 py-8 pb-16">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <button 
@@ -300,112 +433,174 @@ const ReceitasExtras: React.FC<ReceitasExtrasProps> = ({ onBack }) => {
 
       {/* Receitas */}
       <div className="space-y-6">
-        <ReceitaCard
-          title="Suco Verde Turbinado"
-          description="Potente desintoxicante com ação antiparasitária reforçada."
-          ingredients={[
-            "1 maçã verde",
-            "1 pepino",
-            "2 folhas de couve",
-            "Suco de 1 limão",
-            "1 colher de chá de spirulina",
-            "1 colher de chá de clorofila",
-            "1 pedaço pequeno de gengibre"
-          ]}
-          preparation="Bata todos os ingredientes no liquidificador com 200ml de água filtrada. 
-                      Coe se preferir e beba imediatamente em jejum."
-          icon={<Coffee className="w-6 h-6 text-jade" />}
-        />
+        {/* Recipes container */}
+        {(() => {
+          // Combine fixed recipes with additional recipes
+          const allRecipes = [
+            {
+              title: "Suco Verde Turbinado",
+              description: "Potente desintoxicante com ação antiparasitária reforçada.",
+              ingredients: [
+                "1 maçã verde",
+                "1 pepino",
+                "2 folhas de couve",
+                "Suco de 1 limão",
+                "1 colher de chá de spirulina",
+                "1 colher de chá de clorofila",
+                "1 pedaço pequeno de gengibre"
+              ],
+              preparation: "Bata todos os ingredientes no liquidificador com 200ml de água filtrada. Coe se preferir e beba imediatamente em jejum.",
+              icon: <Coffee className="w-6 h-6 text-jade" />,
+              category: "sucos"
+            },
+            {
+              title: "Shot Potencializado",
+              description: "Concentrado de nutrientes para eliminar parasitas rapidamente.",
+              ingredients: [
+                "1 dente de alho",
+                "1 colher de chá de cúrcuma",
+                "1 colher de chá de gengibre ralado",
+                "1 pitada de pimenta caiena",
+                "Suco de meio limão",
+                "1 colher de chá de mel orgânico (opcional)"
+              ],
+              preparation: "Misture todos os ingredientes e bata no liquidificador com 50ml de água. Tome de uma vez como um shot, preferencialmente em jejum pela manhã.",
+              icon: <Droplet className="w-6 h-6 text-jade" />,
+              category: "shots"
+            },
+            {
+              title: "Smoothie Termogênico",
+              description: "Acelera o metabolismo e ajuda na eliminação de toxinas.",
+              ingredients: [
+                "1 banana congelada",
+                "1/2 abacate pequeno",
+                "1 colher de sobremesa de canela",
+                "1 colher de chá de gengibre ralado",
+                "1 colher de sobremesa de óleo de coco",
+                "1 colher de chá de semente de chia",
+                "200ml de leite de amêndoas"
+              ],
+              preparation: "Bata todos os ingredientes no liquidificador até obter uma consistência cremosa. Consuma como café da manhã ou lanche entre as refeições.",
+              icon: <Coffee className="w-6 h-6 text-jade" />,
+              category: "smoothies"
+            },
+            {
+              title: "Água Saborizada Detox",
+              description: "Hidratação potente com propriedades depurativas.",
+              ingredients: [
+                "1 litro de água filtrada",
+                "1/2 pepino fatiado",
+                "5 folhas de hortelã",
+                "1 limão fatiado",
+                "1 colher de chá de semente de chia",
+                "1 ramo de alecrim"
+              ],
+              preparation: "Coloque todos os ingredientes em uma jarra e deixe repousar por pelo menos 2 horas na geladeira. Beba ao longo do dia para manter o corpo hidratado e auxiliar na eliminação de toxinas.",
+              icon: <Droplet className="w-6 h-6 text-jade" />,
+              category: "aguas"
+            },
+            {
+              title: "Salada Anti-Parasitária",
+              description: "Combinação poderosa de vegetais e sementes contra parasitas intestinais.",
+              ingredients: [
+                "Folhas verdes variadas (rúcula, agrião, espinafre)",
+                "1/4 de cebola roxa fatiada",
+                "1 dente de alho picado",
+                "2 colheres de sopa de sementes de abóbora",
+                "1 colher de sopa de sementes de girassol",
+                "Azeite de oliva extravirgem",
+                "1 colher de chá de orégano",
+                "Suco de limão a gosto"
+              ],
+              preparation: "Misture todos os vegetais em uma tigela. Adicione as sementes e tempere com alho, orégano, azeite e limão. Consuma diariamente no almoço para fortalecer o organismo.",
+              icon: <Apple className="w-6 h-6 text-jade" />,
+              category: "outros"
+            },
+            ...additionalRecipes
+          ];
+          
+          // Filter recipes based on selected category
+          const filteredRecipes = filterCategory === 'todos' 
+            ? allRecipes 
+            : allRecipes.filter(recipe => recipe.category === filterCategory);
+          
+          // Limit the number of recipes shown if showAllRecipes is false
+          const visibleRecipes = showAllRecipes 
+            ? filteredRecipes 
+            : filteredRecipes.slice(0, Math.min(6, filteredRecipes.length));
+          
+          // Map through visible recipes to render them
+          return visibleRecipes.map((recipe, index) => (
+            <ReceitaCard
+              key={index}
+              title={recipe.title}
+              description={recipe.description}
+              ingredients={recipe.ingredients}
+              preparation={recipe.preparation}
+              icon={recipe.icon}
+            />
+          ));
+        })()}
         
-        <ReceitaCard
-          title="Shot Potencializado"
-          description="Concentrado de nutrientes para eliminar parasitas rapidamente."
-          ingredients={[
-            "1 dente de alho",
-            "1 colher de chá de cúrcuma",
-            "1 colher de chá de gengibre ralado",
-            "1 pitada de pimenta caiena",
-            "Suco de meio limão",
-            "1 colher de chá de mel orgânico (opcional)"
-          ]}
-          preparation="Misture todos os ingredientes e bata no liquidificador com 50ml de água. 
-                      Tome de uma vez como um shot, preferencialmente em jejum pela manhã."
-          icon={<Droplet className="w-6 h-6 text-jade" />}
-        />
-        
-        <ReceitaCard
-          title="Smoothie Termogênico"
-          description="Acelera o metabolismo e ajuda na eliminação de toxinas."
-          ingredients={[
-            "1 banana congelada",
-            "1/2 abacate pequeno",
-            "1 colher de sobremesa de canela",
-            "1 colher de chá de gengibre ralado",
-            "1 colher de sobremesa de óleo de coco",
-            "1 colher de chá de semente de chia",
-            "200ml de leite de amêndoas"
-          ]}
-          preparation="Bata todos os ingredientes no liquidificador até obter uma consistência cremosa. 
-                      Consuma como café da manhã ou lanche entre as refeições."
-          icon={<Coffee className="w-6 h-6 text-jade" />}
-        />
-        
-        <ReceitaCard
-          title="Água Saborizada Detox"
-          description="Hidratação potente com propriedades depurativas."
-          ingredients={[
-            "1 litro de água filtrada",
-            "1/2 pepino fatiado",
-            "5 folhas de hortelã",
-            "1 limão fatiado",
-            "1 colher de chá de semente de chia",
-            "1 ramo de alecrim"
-          ]}
-          preparation="Coloque todos os ingredientes em uma jarra e deixe repousar por pelo menos 2 horas 
-                      na geladeira. Beba ao longo do dia para manter o corpo hidratado e auxiliar na eliminação de toxinas."
-          icon={<Droplet className="w-6 h-6 text-jade" />}
-        />
-        
-        <ReceitaCard
-          title="Salada Anti-Parasitária"
-          description="Combinação poderosa de vegetais e sementes contra parasitas intestinais."
-          ingredients={[
-            "Folhas verdes variadas (rúcula, agrião, espinafre)",
-            "1/4 de cebola roxa fatiada",
-            "1 dente de alho picado",
-            "2 colheres de sopa de sementes de abóbora",
-            "1 colher de sopa de sementes de girassol",
-            "Azeite de oliva extravirgem",
-            "1 colher de chá de orégano",
-            "Suco de limão a gosto"
-          ]}
-          preparation="Misture todos os vegetais em uma tigela. Adicione as sementes e tempere com alho, 
-                      orégano, azeite e limão. Consuma diariamente no almoço para fortalecer o organismo."
-          icon={<Apple className="w-6 h-6 text-jade" />}
-        />
-        
-        {/* Mostrar recetas adicionales si showAllRecipes es true */}
-        {showAllRecipes && additionalRecipes.map((recipe, index) => (
-          <ReceitaCard
-            key={index}
-            title={recipe.title}
-            description={recipe.description}
-            ingredients={recipe.ingredients}
-            preparation={recipe.preparation}
-            icon={recipe.icon}
-          />
-        ))}
-        
-        {/* Botão Ver Mais */}
-        <div className="text-center">
-          <button 
+        {/* Show more/less button */}
+        <div className="flex justify-center mt-8">
+          <button
             onClick={() => setShowAllRecipes(!showAllRecipes)}
-            className="btn-secondary"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors"
           >
-            {showAllRecipes ? 'Mostrar menos' : 'Ver todas receitas'}
+            {showAllRecipes ? (
+              <>
+                <span>Mostrar Menos</span>
+                <ChevronUp className="w-4 h-4" />
+              </>
+            ) : (
+              <>
+                <span>Mostrar Mais</span>
+                <ChevronDown className="w-4 h-4" />
+              </>
+            )}
           </button>
-          <p className="text-gray-500 text-sm mt-2">
-            Mostrando {showAllRecipes ? 5 + additionalRecipes.length : '5'} de {5 + additionalRecipes.length} receitas
+        </div>
+        
+        {/* Count display */}
+        <div className="text-center mt-4">
+          <p className="text-gray-500 text-sm">
+            Mostrando {showAllRecipes ? (
+              filterCategory === 'todos' ? '25' : 
+              (() => {
+                const categoryCount = [...additionalRecipes, 
+                  {category: "sucos"}, // Suco Verde Turbinado
+                  {category: "shots"}, // Shot Potencializado
+                  {category: "smoothies"}, // Smoothie Termogênico
+                  {category: "aguas"}, // Água Saborizada Detox
+                  {category: "outros"} // Salada Anti-Parasitária
+                ].filter(recipe => recipe.category === filterCategory).length;
+                return categoryCount;
+              })()
+            ) : Math.min(6, (() => {
+              const filteredCount = filterCategory === 'todos' 
+                ? 25 
+                : [...additionalRecipes, 
+                    {category: "sucos"}, // Suco Verde Turbinado
+                    {category: "shots"}, // Shot Potencializado
+                    {category: "smoothies"}, // Smoothie Termogênico
+                    {category: "aguas"}, // Água Saborizada Detox
+                    {category: "outros"} // Salada Anti-Parasitária
+                  ].filter(recipe => recipe.category === filterCategory).length;
+              return filteredCount;
+            })()) } de {
+              filterCategory === 'todos' ? '25' : 
+              (() => {
+                const categoryCount = [...additionalRecipes, 
+                  {category: "sucos"}, // Suco Verde Turbinado
+                  {category: "shots"}, // Shot Potencializado
+                  {category: "smoothies"}, // Smoothie Termogênico
+                  {category: "aguas"}, // Água Saborizada Detox
+                  {category: "outros"} // Salada Anti-Parasitária
+                ].filter(recipe => recipe.category === filterCategory).length;
+                return categoryCount;
+              })()
+            } receitas
           </p>
         </div>
       </div>

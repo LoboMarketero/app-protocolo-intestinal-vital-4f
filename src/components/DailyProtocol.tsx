@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react'; // Added useEffect
+import React, { useState, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
-import { supabase } from '../lib/supabase'; // Added supabase import
-import { protocolData } from '../data/protocol';
-import { ArrowLeft, Droplet, Coffee, Moon, CheckCircle2, Clock } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { protocolData, protocolPhases } from '../data/protocol'; // Import protocolPhases
+// import { TaskDetails } from '../types'; // Reverted: TaskDetails removed
+import { ArrowLeft, Droplet, Coffee, Moon, CheckCircle2, Clock } from 'lucide-react'; // Removed Info
 
 interface DailyProtocolProps {
   onBack: () => void;
@@ -28,6 +29,29 @@ const loadDailyProgress = async (userId: string, day: number) => {
   }
   console.log(`[DailyProtocol] loadDailyProgress - Successfully fetched progress for userId: ${userId}, day: ${day}, data:`, JSON.stringify(data));
   return data;
+}
+
+// Function to load checklist item completions
+const loadChecklistProgress = async (userId: string, day: number) => {
+  console.log(`[DailyProtocol] loadChecklistProgress called for userId: ${userId}, day: ${day}`);
+  const { data, error } = await supabase
+    .from('checklist_progress')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('day', day)
+    .single();
+  
+  if (error && error.code !== 'PGRST116') {
+    console.error('[DailyProtocol] loadChecklistProgress - Error loading checklist progress:', error);
+    return {};
+  }
+  
+  if (data && data.checklist_data) {
+    console.log(`[DailyProtocol] loadChecklistProgress - Successfully fetched checklist data for userId: ${userId}, day: ${day}`);
+    return data.checklist_data;
+  }
+  
+  return {};
 }
 
 const saveDailyProgress = async (userId: string, day: number, progress: any) => {
@@ -56,56 +80,95 @@ const saveDailyProgress = async (userId: string, day: number, progress: any) => 
   return data; 
 }
 
-const DailyProtocol: React.FC<DailyProtocolProps> = ({ onBack }) => {
-  const { authUser, userProfile, advanceDay } = useUser(); 
-  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
+// Function to save checklist item completions
+const saveChecklistProgress = async (userId: string, day: number, checklistData: Record<string, boolean>) => {
+  console.log('[DailyProtocol] saveChecklistProgress - Saving checklist data:', { userId, day, checklistItems: Object.keys(checklistData).length });
   
+  const upsertData = {
+    user_id: userId,
+    day,
+    checklist_data: checklistData,
+    updated_at: new Date().toISOString()
+  };
+
+  const { data, error } = await supabase
+    .from('checklist_progress')
+    .upsert(upsertData, {
+      onConflict: 'user_id,day'
+    })
+    .select();
+
+  if (error) {
+    console.error('[DailyProtocol] saveChecklistProgress - Error saving checklist data:', error);
+    throw error;
+  }
+  
+  console.log('[DailyProtocol] saveChecklistProgress - Checklist data saved successfully');
+  return data;
+}
+
+const DailyProtocol: React.FC<DailyProtocolProps> = ({ onBack }) => {
+  const { authUser, userProfile, advanceDay } = useUser();
+  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
+  const [itemCompletions, setItemCompletions] = useState<Record<string, boolean>>({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Ensure userProfile and authUser are loaded
   if (!authUser || !userProfile) {
     return <div className="p-4 text-center">Carregando dados do usuário ou perfil...</div>;
   }
-  // Now authUser and userProfile are guaranteed non-null.
 
   const currentDay = userProfile.current_day;
   const todayProtocol = protocolData.find(p => p.day === currentDay);
+  const currentPhaseInfo = protocolPhases.find(p => p.id === todayProtocol?.phase);
 
+  // Load daily progress (main tasks) and checklist items
   useEffect(() => {
     console.log('[DailyProtocol] useEffect triggered. AuthUser ID:', authUser.id, 'currentDay:', currentDay, 'todayProtocol exists:', !!todayProtocol);
-    // userProfile is already confirmed non-null if we reach here due to the guard above.
-    // authUser.id is also confirmed.
-    if (todayProtocol) { // Only need to check todayProtocol as authUser and userProfile are guarded
+    if (todayProtocol) {
       const performLoadProgress = async () => {
+        setIsLoading(true);
         console.log('[DailyProtocol] useEffect - Condition met, calling loadDailyProgress.');
-        const progressData = await loadDailyProgress(authUser.id, currentDay);
-        console.log('[DailyProtocol] useEffect - loadDailyProgress returned:', JSON.stringify(progressData));
-        if (progressData) {
-          const steps = [];
-          if (progressData.morning_completed) steps.push('morning');
-          if (progressData.afternoon_completed) steps.push('afternoon');
-          if (progressData.evening_completed) steps.push('night'); // Map evening_completed to 'night'
-          console.log('[DailyProtocol] useEffect - Setting completedSteps from DB data:', steps);
-          setCompletedSteps(steps);
-        } else {
-          console.log('[DailyProtocol] useEffect - No progressData from DB, setting completedSteps to empty array.');
-          setCompletedSteps([]); 
+        
+        try {
+          // Load main tasks progress
+          const progressData = await loadDailyProgress(authUser.id, currentDay);
+          console.log('[DailyProtocol] useEffect - loadDailyProgress returned:', JSON.stringify(progressData));
+          if (progressData) {
+            const steps = [];
+            if (progressData.morning_completed) steps.push('morning');
+            if (progressData.afternoon_completed) steps.push('afternoon');
+            if (progressData.evening_completed) steps.push('night');
+            console.log('[DailyProtocol] useEffect - Setting completedSteps from DB data:', steps);
+            setCompletedSteps(steps);
+          } else {
+            console.log('[DailyProtocol] useEffect - No progressData from DB, setting completedSteps to empty array.');
+            setCompletedSteps([]);
+          }
+          
+          // Load checklist items progress
+          const checklistData = await loadChecklistProgress(authUser.id, currentDay);
+          console.log('[DailyProtocol] useEffect - Loaded checklist data:', checklistData);
+          setItemCompletions(checklistData || {});
+        } catch (error) {
+          console.error('[DailyProtocol] useEffect - Error loading progress:', error);
+        } finally {
+          setIsLoading(false);
         }
       };
+      
       performLoadProgress();
     } else {
       console.log('[DailyProtocol] useEffect - Condition NOT met for loading progress.');
+      setIsLoading(false);
     }
-  }, [authUser, userProfile, currentDay]); // Corrected dependency array
+  }, [authUser.id, currentDay, todayProtocol]); // authUser.id is stable, userProfile.current_day changes currentDay
 
-  // The guards for !authUser, !userProfile, and !todayProtocol are now at the top or implicit.
-  // if (!authUser || !userProfile) handled by early return.
-  // if (!todayProtocol) also needs to be handled if currentDay could be invalid.
-  // For now, assuming currentDay from userProfile will always find a todayProtocol or component handles it.
-  // The existing !todayProtocol guard is fine.
-
-  if (!todayProtocol) { // This guard is still useful if current_day from DB is out of protocolData range
+  if (!todayProtocol || !currentPhaseInfo) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="card">
-          <p className="text-gray-600">Protocolo não encontrado para o dia {currentDay}</p>
+          <p className="text-gray-600">Protocolo ou informações da fase não encontrados para o dia {currentDay}</p>
         </div>
       </div>
     );
@@ -149,18 +212,43 @@ const DailyProtocol: React.FC<DailyProtocolProps> = ({ onBack }) => {
     }
   };
 
+  const handleChecklistItemToggle = async (stepId: string, itemIndex: number) => {
+    const itemKey = `${stepId}-${itemIndex}`;
+    const newCompletions = {
+      ...itemCompletions,
+      [itemKey]: !itemCompletions[itemKey]
+    };
+    
+    setItemCompletions(newCompletions);
+    
+    try {
+      // Save the updated checklist data to the database
+      await saveChecklistProgress(authUser.id, currentDay, newCompletions);
+      console.log('[DailyProtocol] handleChecklistItemToggle - Checklist progress saved successfully');
+    } catch (error) {
+      console.error('[DailyProtocol] handleChecklistItemToggle - Error saving checklist progress:', error);
+      // Revert the state if there was an error saving
+      setItemCompletions(itemCompletions);
+    }
+  };
+
   const StepCard = ({
-    stepId, 
-    icon, 
-    iconBg, 
-    period, 
-    data 
-  }: { 
+    stepId,
+    icon,
+    iconBg,
+    data,
+    period,
+  }: {
     stepId: string;
     icon: React.ReactNode;
     iconBg: string;
+    data: { 
+      title: string; 
+      description: string; 
+      preparation?: string; 
+      checklist?: { text: string; checked?: boolean }[];
+    };
     period: string;
-    data: { title: string; description: string; preparation?: string };
   }) => {
     const isCompleted = completedSteps.includes(stepId);
 
@@ -182,6 +270,36 @@ const DailyProtocol: React.FC<DailyProtocolProps> = ({ onBack }) => {
                 </p>
               </div>
             )}
+            
+            {data.checklist && data.checklist.length > 0 && (
+              <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                <h6 className="text-sm font-semibold text-gray-700 mb-2">Checklist:</h6>
+                <ul className="space-y-1">
+                  {data.checklist.map((item, index) => {
+                    const itemKey = `${stepId}-${index}`;
+                    const isItemChecked = itemCompletions[itemKey] || false;
+                    
+                    return (
+                      <li key={index} className="flex items-start gap-2">
+                        <button 
+                          onClick={() => handleChecklistItemToggle(stepId, index)}
+                          className="mt-0.5 flex-shrink-0"
+                        >
+                          {isItemChecked ? (
+                            <CheckCircle2 className="w-4 h-4 text-jade" />
+                          ) : (
+                            <div className="w-4 h-4 border border-gray-400 rounded-full" />
+                          )}
+                        </button>
+                        <span className={`text-sm ${isItemChecked ? 'line-through text-gray-500' : 'text-gray-700'}`}>
+                          {item.text}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
 
             <button
               onClick={() => handleStepComplete(stepId)}
@@ -200,8 +318,22 @@ const DailyProtocol: React.FC<DailyProtocolProps> = ({ onBack }) => {
     );
   };
 
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-pulse flex flex-col items-center">
+            <div className="h-12 w-12 bg-jade/20 rounded-full mb-4"></div>
+            <div className="h-4 w-48 bg-gray-200 rounded mb-2"></div>
+            <div className="h-3 w-32 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto px-4 py-8 pb-36"> {/* Increased bottom padding */}
+    <div className="container mx-auto px-4 py-8 pb-16"> {/* Reduced bottom padding */}
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <button 
@@ -217,13 +349,10 @@ const DailyProtocol: React.FC<DailyProtocolProps> = ({ onBack }) => {
       {/* Phase Info */}
       <div className="card mb-6 bg-gradient-to-r from-jade/10 to-mint/10">
         <h2 className="text-2xl font-bold text-jade mb-2">
-          Fase {todayProtocol.phase}: {todayProtocol.phaseName}
+          {currentPhaseInfo.name} {/* This was 'Fase X: NAME', now just NAME from protocolPhases */}
         </h2>
         <p className="text-gray-700">
-          {todayProtocol.phase === 1 && 'Preparando seu corpo para a transformação'}
-          {todayProtocol.phase === 2 && 'Eliminando toxinas e parasitas do seu sistema'}
-          {todayProtocol.phase === 3 && 'Restaurando sua flora intestinal saudável'}
-          {todayProtocol.phase === 4 && 'Fortalecendo seu sistema digestivo'}
+          {currentPhaseInfo.description} {/* Reverted from objective to description */}
         </p>
       </div>
 

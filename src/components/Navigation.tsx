@@ -34,20 +34,15 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate, onOpen
     }
   };
   
-  // Simplificamos a navegação para apenas 4 elementos principais + menu
+  // Simplificamos a navegação para apenas 2 elementos principais + menu
   const navItems = [
     { id: 'dashboard', label: 'Início', icon: Home },
     { id: 'protocol', label: 'Protocolo', icon: Calendar },
-    { id: 'materials', label: 'Materiais', icon: FileText },
-    { id: 'progress', label: 'Progresso', icon: BarChart },
+    // Removed materials and progress as requested
   ];
   
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white glassmorphism border-t border-gray-200 px-2 py-2 z-40">
-      <div className="flex items-center justify-center px-3 pb-1">
-        <PlanBadge />
-      </div>
-      
       <div className="flex justify-between items-center max-w-lg mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;

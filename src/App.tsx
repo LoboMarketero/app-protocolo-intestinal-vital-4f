@@ -9,43 +9,73 @@ import PremiumModal from './components/PremiumModal';
 import GuiaManutencao from './components/GuiaManutencao';
 import ReceitasExtras from './components/ReceitasExtras';
 import ProtocoloTurbo from './components/ProtocoloTurbo';
-import CoachVirtual from './components/CoachVirtual';
-import AnalyticsPremium from './components/AnalyticsPremium';
-import PWAInstall from './components/PWAInstall';
+// import CoachVirtual from './components/CoachVirtual'; // Removed Coach Virtual
+// import AnalyticsPremium from './components/AnalyticsPremium'; // Temporarily hidden
+// import PWAInstall from './components/PWAInstall';
 import SideMenu from './components/SideMenu';
-import BasicTracker from './components/BasicTracker';
-import AdvancedTracker from './components/AdvancedTracker';
-import MateriaisApoio from './components/MateriaisApoio';
+// import BasicTracker from './components/BasicTracker'; // Temporarily hidden
+// import AdvancedTracker from './components/AdvancedTracker'; // Temporarily hidden
+// import MateriaisApoio from './components/MateriaisApoio'; // Removed again based on feedback
 import FAQIntegrado from './components/FAQIntegrado';
 
 type Page = 
   | 'dashboard' 
   | 'protocol' 
   | 'videos' 
-  | 'materials' 
-  | 'progress' 
+  // | 'materials' // Removed again based on feedback
+  // | 'progress' // Removed progress
   | 'community' 
   | 'upgrade'
   | 'guiaManutencao'
   | 'receitasExtras'
   | 'protocoloTurbo'
-  | 'coachVirtual'
+  // | 'coachVirtual' // Removed Coach Virtual
   | 'analyticsPremium'
   | 'faq';
 
 function AppContent() {
-  const { authUser, userProfile, loading } = useUser(); // Changed to authUser, userProfile
+  const { 
+    authUser, 
+    userProfile, 
+    loading, 
+    refreshUserData, 
+    isRefreshingUserData 
+  } = useUser();
 
   // Hooks must be called at the top level, before conditional returns.
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<string>('');
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
+  const [returnedFromUpgrade, setReturnedFromUpgrade] = useState(false);
 
-  if (loading) {
+  // Handle returning from upgrade page to refresh user data
+  if (returnedFromUpgrade && currentPage !== 'upgrade') {
+    refreshUserData();
+    setReturnedFromUpgrade(false);
+  }
+
+  // Custom navigation handler to track upgrade page visits
+  const handleNavigate = (page: Page) => {
+    // If navigating away from upgrade page, set flag to refresh data
+    if (currentPage === 'upgrade' && page !== 'upgrade') {
+      setReturnedFromUpgrade(true);
+    }
+    
+    // If navigating to upgrade page, clear the flag
+    if (page === 'upgrade') {
+      setReturnedFromUpgrade(false);
+    }
+    
+    setCurrentPage(page);
+  };
+
+  if (loading || isRefreshingUserData) {
     return (
       <div className="min-h-screen bg-jade-50 flex items-center justify-center">
-        <div className="text-jade-600">Carregando...</div>
+        <div className="text-jade-600">
+          {isRefreshingUserData ? 'Atualizando seu plano...' : 'Carregando...'}
+        </div>
       </div>
     );
   }
@@ -73,29 +103,42 @@ function AppContent() {
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <Dashboard onPremiumFeature={handlePremiumFeature} onNavigate={setCurrentPage} />;
+        return <Dashboard onPremiumFeature={handlePremiumFeature} onNavigate={handleNavigate} />;
       
       case 'protocol':
-        return <DailyProtocol onBack={() => setCurrentPage('dashboard')} />;
+        return <DailyProtocol onBack={() => handleNavigate('dashboard')} />;
       
       case 'upgrade':
-        return <UpgradePage onBack={() => setCurrentPage('dashboard')} />;
+        return <UpgradePage onBack={() => handleNavigate('dashboard')} />;
       
       // Novos componentes para planos premium
       case 'guiaManutencao':
-        return <GuiaManutencao onBack={() => setCurrentPage('dashboard')} />;
+        return <GuiaManutencao onBack={() => handleNavigate('dashboard')} />;
       
       case 'receitasExtras':
-        return <ReceitasExtras onBack={() => setCurrentPage('dashboard')} />;
+        return <ReceitasExtras onBack={() => handleNavigate('dashboard')} />;
       
       case 'protocoloTurbo':
-        return <ProtocoloTurbo onBack={() => setCurrentPage('dashboard')} />;
+        return <ProtocoloTurbo onBack={() => handleNavigate('dashboard')} />;
       
-      case 'coachVirtual':
-        return <CoachVirtual onBack={() => setCurrentPage('dashboard')} />;
+      // Coach Virtual removed as requested
       
       case 'analyticsPremium':
-        return <AnalyticsPremium onBack={() => setCurrentPage('dashboard')} />;
+        // Temporarily hidden
+        return (
+          <div className="container mx-auto px-4 py-8 pb-24">
+            <div className="card">
+              <h2 className="text-2xl font-bold text-jade mb-4">Em Desenvolvimento</h2>
+              <p className="text-gray-600 mb-4">O Analytics Premium está sendo preparado e estará disponível em breve!</p>
+              <button 
+                onClick={() => handleNavigate('dashboard')}
+                className="btn-primary"
+              >
+                Voltar para o Dashboard
+              </button>
+            </div>
+          </div>
+        );
       
       
       case 'videos':
@@ -111,21 +154,9 @@ function AppContent() {
           </div>
         );
       
-      case 'materials':
-        if (!userProfile) return <div className="p-4">Carregando dados do perfil...</div>; // Guard for userProfile
-        return <MateriaisApoio onBack={() => setCurrentPage('dashboard')} />;
+      // Materials page removed based on feedback
       
-      case 'progress':
-        if (!userProfile) return <div className="p-4">Carregando dados do perfil...</div>; // Guard for userProfile
-        return (
-          <div className="container mx-auto px-4 py-8 pb-24">
-            {userProfile.plan === 'essencial' ? (
-              <BasicTracker onNavigateToUpgrade={() => setCurrentPage('upgrade')} /> 
-            ) : (
-              <AdvancedTracker onNavigateToUpgrade={() => setCurrentPage('upgrade')} /> 
-            )}
-          </div>
-        );
+      // Progress page removed as requested
       
       case 'community':
         return (
@@ -144,10 +175,10 @@ function AppContent() {
         );
       
       case 'faq':
-        return <FAQIntegrado onBack={() => setCurrentPage('dashboard')} />;
+        return <FAQIntegrado onBack={() => handleNavigate('dashboard')} />;
 
       default:
-        return <Dashboard onPremiumFeature={handlePremiumFeature} onNavigate={setCurrentPage} />;
+        return <Dashboard onPremiumFeature={handlePremiumFeature} onNavigate={handleNavigate} />;
     }
   };
 
@@ -156,7 +187,7 @@ function AppContent() {
       {renderPage()}
       <Navigation 
         currentPage={currentPage} 
-        onNavigate={setCurrentPage} 
+        onNavigate={handleNavigate} 
         onOpenMenu={() => setSideMenuOpen(true)}
       />
       {showPremiumModal && (
@@ -165,16 +196,16 @@ function AppContent() {
           onClose={() => setShowPremiumModal(false)}
           onUpgrade={() => {
             setShowPremiumModal(false);
-            setCurrentPage('upgrade');
+            handleNavigate('upgrade');
           }}
         />
       )}
       <SideMenu 
         isOpen={sideMenuOpen} 
         onClose={() => setSideMenuOpen(false)}
-        onNavigate={(page: string) => setCurrentPage(page as Page)}
+        onNavigate={(page: string) => handleNavigate(page as Page)}
       />
-      <PWAInstall />
+      {/* <PWAInstall /> */}
     </div>
   );
 }
