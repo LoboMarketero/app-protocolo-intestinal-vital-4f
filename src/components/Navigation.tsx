@@ -2,8 +2,6 @@ import React from 'react';
 import { 
   Home, 
   Calendar, 
-  FileText, 
-  BarChart, 
   Menu
 } from 'lucide-react';
 import { useUser } from '../context/UserContext';
@@ -15,24 +13,8 @@ interface NavigationProps {
 }
 
 const Navigation: React.FC<NavigationProps> = ({ currentPage, onNavigate, onOpenMenu }) => {
-  const { userProfile } = useUser(); // Changed to userProfile
-  
-  // Badge para mostrar o plano do usuário
-  const PlanBadge = () => {
-    if (!userProfile || !userProfile.plan) { // Guard against null userProfile or plan
-      return null; // Or a placeholder/loading indicator
-    }
-    switch(userProfile.plan) { // Use userProfile.plan
-      case 'essencial':
-        return <span className="bg-jade/10 text-jade text-[10px] px-1 py-0.5 rounded font-bold">ESSENCIAL</span>;
-      case 'completo':
-        return <span className="bg-blue-400/10 text-blue-500 text-[10px] px-1 py-0.5 rounded font-bold">COMPLETO</span>;
-      case 'premium':
-        return <span className="bg-gold/10 text-gold text-[10px] px-1 py-0.5 rounded font-bold">PREMIUM</span>;
-      default:
-        return null;
-    }
-  };
+  // Keeping useUser hook for future use but not destructuring any properties
+  const { } = useUser();
   
   // Simplificamos a navegação para apenas 2 elementos principais + menu
   const navItems = [

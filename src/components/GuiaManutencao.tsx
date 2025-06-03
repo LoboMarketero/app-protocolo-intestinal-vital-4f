@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useUser } from '../context/UserContext';
-import { ArrowLeft, BookOpen, Calendar, List, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Utensils } from 'lucide-react';
+import { ArrowLeft, BookOpen, Calendar, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Utensils } from 'lucide-react';
 import LockedPreview from './LockedPreview'; // Import LockedPreview
 
 interface GuiaManutencaoProps {

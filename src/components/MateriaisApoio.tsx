@@ -47,7 +47,8 @@ interface MateriaisApoioProps {
 type MaterialTab = 'checklists' | 'compras' | 'calendario' | 'infograficos';
 
 const MateriaisApoio: React.FC<MateriaisApoioProps> = ({ onBack }) => {
-  const { permissions } = useUser();
+  // Not using permissions directly but keeping the useUser hook for future use
+  const { } = useUser();
   const [activeTab, setActiveTab] = useState<MaterialTab>('checklists');
   const [showChecklistModal, setShowChecklistModal] = useState(false);
   const [selectedChecklist, setSelectedChecklist] = useState<string>('');

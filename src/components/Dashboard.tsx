@@ -10,10 +10,7 @@ import {
   BookOpen, 
   Utensils, 
   Rocket, 
-  BarChart2,
-  Users,
-  FileText,
-  HelpCircle
+  Users
 } from 'lucide-react';
 
 interface DashboardProps {

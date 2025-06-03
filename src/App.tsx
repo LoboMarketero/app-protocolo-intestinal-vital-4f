@@ -36,7 +36,7 @@ type Page =
 function AppContent() {
   const { 
     authUser, 
-    userProfile, 
+    // Removing userProfile as it's not used
     loading, 
     refreshUserData, 
     isRefreshingUserData 
